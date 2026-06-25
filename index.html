@@ -230,34 +230,29 @@
             
             <div class="p-3 border-t border-white/10 flex flex-col gap-2 shrink-0 transition-all bg-black/20">
                 
-                <!-- LAN STATUS INDICATOR -->
+                <!-- CLOUD STATUS INDICATOR -->
                 <div class="w-full flex flex-col gap-1 bg-black/40 rounded-lg border border-white/10 shadow-inner mb-1 p-2 nav-text">
-                    <div class="flex items-center justify-between cursor-help" title="Trạng thái đồng bộ ổ LAN">
+                    <div class="flex items-center justify-between cursor-help" title="Trạng thái kết nối máy chủ Firebase Cloud">
                         <div class="flex items-center gap-1.5">
-                            <div id="db-status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></div>
-                            <span class="text-[9px] font-bold text-gray-300 tracking-wider">LƯU TRỮ</span>
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span id="db-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                <span id="db-status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500"></span>
+                            </span>
+                            <span class="text-[9px] font-bold text-gray-300 tracking-wider">DATABASE</span>
                         </div>
-                        <span id="db-status-text" class="text-[9px] font-bold text-rose-400">CỤC BỘ</span>
+                        <span id="db-status-text" class="text-[9px] font-bold text-yellow-400">ĐANG KẾT NỐI</span>
                     </div>
                 </div>
 
-                <!-- LAN ACTION BUTTONS -->
+                <!-- EXPORT ACTIONS -->
                 <div class="flex flex-col gap-1.5 w-full nav-text action-btn-group">
-                    <button onclick="connectLANFile()" class="w-full glass-btn-primary py-1.5 rounded text-[10px] font-bold flex justify-center items-center gap-1.5" title="Chọn file Data.json nằm trên ổ chung LAN">
-                        <i class="fa-solid fa-folder-tree"></i> Kết nối Data.json
+                    <button onclick="exportDataManual()" class="w-full glass-btn-primary py-1.5 rounded text-[10px] font-bold flex justify-center items-center gap-1.5" title="Tải file dự phòng về máy">
+                        <i class="fa-solid fa-download"></i> Tải Backup (.json)
                     </button>
-                    <div class="flex gap-1.5 w-full">
-                        <button onclick="syncFromLAN()" class="flex-1 glass-btn py-1.5 rounded flex justify-center items-center text-[10px] text-gray-300 hover:text-emerald-400 gap-1" title="Tải dữ liệu mới nhất từ ổ LAN">
-                            <i class="fa-solid fa-rotate"></i> Làm mới
-                        </button>
-                        <button onclick="exportDataManual()" class="flex-1 glass-btn py-1.5 rounded flex justify-center items-center text-[10px] text-gray-300 hover:text-cyan-400 gap-1" title="Tải file dự phòng về máy">
-                            <i class="fa-solid fa-download"></i> Backup
-                        </button>
-                    </div>
                 </div>
 
                 <div class="collapsed-icon hidden items-center justify-center w-full mb-2">
-                    <div id="db-status-dot-mini" class="w-3 h-3 rounded-full bg-rose-500"></div>
+                    <div id="db-status-dot-mini" class="w-3 h-3 rounded-full bg-yellow-500"></div>
                 </div>
 
                 <!-- Group Theme & Toggle -->
@@ -389,7 +384,7 @@
                             </button>
                         </div>
                         <div id="auto-save-indicator" class="text-[10px] text-emerald-400 font-medium hidden absolute top-1.5 right-4 items-center gap-1 bg-emerald-900/50 border border-emerald-500/30 px-2 py-0.5 rounded shadow-inner">
-                            <i class="fa-solid fa-check-double"></i> Đã đồng bộ LAN
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Đã đồng bộ Cloud
                         </div>
                     </div>
 
@@ -563,12 +558,167 @@
         </main>
     </div>
 
+    <!-- ================= FIREBASE CLOUD SYSTEM ================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        // Cấu hình Firebase từ User
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5m2SLmjUzoDb5gVppiYnQllKC4I6O86o",
+            authDomain: "stability-trial.firebaseapp.com",
+            projectId: "stability-trial",
+            storageBucket: "stability-trial.firebasestorage.app",
+            messagingSenderId: "1017248893150",
+            appId: "1:1017248893150:web:17fb437de1fa55f9f1da4f",
+            measurementId: "G-RRHPF6TXMD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Fallback môi trường Preview/Production
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'stability-trial';
+        const isCanvas = typeof __firebase_config !== 'undefined';
+
+        let unsubscribeSnapshot = null;
+
+        window.updateDBStatus = function(state) {
+            const dot = document.getElementById('db-status-dot');
+            const dotMini = document.getElementById('db-status-dot-mini');
+            const ping = document.getElementById('db-status-ping');
+            const text = document.getElementById('db-status-text');
+            if(!dot || !text) return;
+
+            if(state === 'online') {
+                dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10b981]';
+                if (ping) ping.className = 'hidden';
+                if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
+                text.innerText = 'TRỰC TUYẾN';
+                text.className = 'nav-text text-[9px] font-bold text-emerald-400';
+            } else if (state === 'connecting') {
+                dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500';
+                if (ping) ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75';
+                if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                text.innerText = 'ĐANG KẾT NỐI...';
+                text.className = 'nav-text text-[9px] font-bold text-yellow-400';
+            } else {
+                dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_#f43f5e]';
+                if (ping) ping.className = 'hidden';
+                if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
+                text.innerText = 'NGOẠI TUYẾN';
+                text.className = 'nav-text text-[9px] font-bold text-rose-400';
+            }
+        }
+
+        window.initFirebase = async function() {
+            window.updateDBStatus('connecting');
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.warn("Lỗi Auth, chạy Offline Mode", error);
+                window.updateDBStatus('offline');
+                window.loadLocalData();
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    setupRealtimeSync();
+                } else {
+                    window.updateDBStatus('offline');
+                    window.loadLocalData();
+                }
+            });
+        };
+
+        function setupRealtimeSync() {
+            // Khai báo Collection path thông minh (Hỗ trợ cả môi trường Preview và Chạy độc lập)
+            const samplesRef = isCanvas
+                ? collection(db, 'artifacts', appId, 'public', 'data', 'samples')
+                : collection(db, 'samples');
+
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+            unsubscribeSnapshot = onSnapshot(samplesRef, (snapshot) => {
+                const data = [];
+                snapshot.forEach(doc => data.push({ ...doc.data(), id: doc.id }));
+                
+                // Sắp xếp mới nhất lên đầu
+                data.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                
+                window.samplesData = data;
+                localStorage.setItem('dod_local_v4', JSON.stringify(data));
+                window.renderAll();
+                window.updateDBStatus('online');
+            }, (error) => {
+                console.error("Lỗi đồng bộ Cloud:", error);
+                window.showToast("Mất kết nối Đám mây. Chuyển sang ngoại tuyến.", "warning");
+                window.updateDBStatus('offline');
+                window.loadLocalData();
+            });
+        }
+
+        // Kỹ thuật Deep Clone dọn rác trước khi đẩy lên Firebase
+        window.saveToCloud = async function(record) {
+            localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
+            
+            if (!auth.currentUser) return; // Nếu rớt mạng thì chỉ lưu Local
+            
+            try {
+                const cleanRecord = JSON.parse(JSON.stringify(record)); // Xóa bỏ biến undefined
+                const docRef = isCanvas
+                    ? doc(db, 'artifacts', appId, 'public', 'data', 'samples', record.id)
+                    : doc(db, 'samples', record.id);
+                
+                await setDoc(docRef, cleanRecord, { merge: true });
+                
+                // Hiển thị Auto-save indicator
+                const indicator = document.getElementById('auto-save-indicator');
+                if(indicator) {
+                    indicator.classList.remove('hidden'); indicator.classList.add('flex');
+                    setTimeout(() => { indicator.classList.add('hidden'); indicator.classList.remove('flex'); }, 2000);
+                }
+            } catch (e) {
+                console.error("Lỗi lưu Cloud:", e);
+                window.showToast("Lỗi đồng bộ Đám mây. Đã lưu an toàn vào máy.", "error");
+            }
+        };
+
+        window.deleteFromCloud = async function(id) {
+            localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
+            
+            if (!auth.currentUser) return;
+            try {
+                const docRef = isCanvas
+                    ? doc(db, 'artifacts', appId, 'public', 'data', 'samples', id)
+                    : doc(db, 'samples', id);
+                await deleteDoc(docRef);
+            } catch (e) {
+                console.error("Lỗi xóa Cloud:", e);
+            }
+        };
+
+        // Kích hoạt Firebase khi khởi động xong DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            initCheckboxes();
+            applyTheme();
+            window.switchTab('dashboard');
+            window.loadLocalData(); // Nạp dữ liệu cũ trước cho nhanh
+            window.initFirebase();  // Bắt đầu liên kết Đám mây
+        });
+    </script>
+
     <script>
         // ---- Global State ----
         window.samplesData = [];
         window.searchQuery = "";
         window.isLightMode = localStorage.getItem('dod_theme_pref') === 'light';
-        let lanFileHandle = null; 
         
         let currentDate = new Date();
         window.calMonth = currentDate.getMonth();
@@ -616,94 +766,7 @@
             return d;
         };
 
-        // ================= LAN FILE SYSTEM =================
-        function updateDBStatus(state) {
-            const dot = document.getElementById('db-status-dot');
-            const dotMini = document.getElementById('db-status-dot-mini');
-            const text = document.getElementById('db-status-text');
-            if(!dot || !text) return;
-
-            if(state === 'lan_connected') {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
-                if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
-                text.innerText = 'ĐÃ KẾT NỐI LAN';
-                text.className = 'nav-text text-[9px] font-bold text-emerald-400';
-            } else {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
-                if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
-                text.innerText = 'CỤC BỘ (CHƯA NỐI)';
-                text.className = 'nav-text text-[9px] font-bold text-rose-400';
-            }
-        }
-
-        window.connectLANFile = async function() {
-            try {
-                if (!window.showOpenFilePicker) {
-                    showToast("Trình duyệt không hỗ trợ File System API. Hãy dùng Chrome/Edge mới nhất.", "error");
-                    return;
-                }
-                [lanFileHandle] = await window.showOpenFilePicker({
-                    types: [{ description: 'DOD Database JSON', accept: {'application/json': ['.json']} }],
-                    multiple: false
-                });
-                await syncFromLAN(true); 
-            } catch (error) {
-                console.error(error);
-                if(error.name !== 'AbortError') showToast("Lỗi kết nối file: " + error.message, "error");
-            }
-        };
-
-        window.syncFromLAN = async function(isInitial = false) {
-            if (!lanFileHandle) {
-                if(!isInitial) showToast("Vui lòng Bấm 'Kết nối Data.json' trước tiên", "error");
-                return;
-            }
-            try {
-                const file = await lanFileHandle.getFile();
-                const contents = await file.text();
-                if(contents.trim() === "") {
-                    window.samplesData = [];
-                } else {
-                    const data = JSON.parse(contents);
-                    window.samplesData = Array.isArray(data) ? data : [];
-                    window.samplesData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                }
-                
-                localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
-                
-                window.renderAll();
-                updateDBStatus('lan_connected');
-                if(!isInitial) showToast("Đã làm mới dữ liệu từ Data.json");
-                else showToast("Kết nối thành công. Dữ liệu đã tải.");
-            } catch (err) {
-                console.error(err);
-                showToast("Lỗi đọc file. Hãy kết nối lại.", "error");
-                lanFileHandle = null; updateDBStatus('offline');
-            }
-        };
-
-        async function saveToLAN() {
-            if (lanFileHandle) {
-                try {
-                    const writable = await lanFileHandle.createWritable();
-                    await writable.write(JSON.stringify(window.samplesData, null, 2));
-                    await writable.close();
-                    
-                    const indicator = document.getElementById('auto-save-indicator');
-                    if(indicator) {
-                        indicator.classList.remove('hidden'); indicator.classList.add('flex');
-                        setTimeout(() => { indicator.classList.add('hidden'); indicator.classList.remove('flex'); }, 2000);
-                    }
-                } catch(e) { 
-                    console.error("Write error", e); 
-                    showToast("Lỗi ghi đè file. Vui lòng cấp lại quyền (Kết nối lại).", "error");
-                    lanFileHandle = null; updateDBStatus('offline');
-                }
-            } 
-            localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
-        }
-
-        function loadLocalData() {
+        window.loadLocalData = function() {
             try {
                 const local = localStorage.getItem('dod_local_v4');
                 if (local) {
@@ -715,8 +778,7 @@
                 window.samplesData = [];
             }
             window.renderAll();
-            updateDBStatus('offline');
-        }
+        };
 
         // ================= APP LOGIC MỚI =================
         window.saveRecord = async function(event) {
@@ -781,7 +843,8 @@
             window.switchTab('table');
             window.showToast("Đã lưu mẫu thành công!");
             
-            await saveToLAN();
+            // Đẩy lên Đám Mây qua hàm kết nối Firebase
+            if(window.saveToCloud) await window.saveToCloud(record);
         };
 
         window.pendingCancelUpdate = null;
@@ -806,7 +869,8 @@
             record.statuses[milestoneId] = newStatus;
             selectElement.className = `status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass(newStatus)} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent`;
             window.renderWarningModules();
-            await saveToLAN();
+            
+            if(window.saveToCloud) await window.saveToCloud(record);
         };
 
         // Bắt sự kiện cho Modal Hủy
@@ -834,7 +898,8 @@
                         record.cancelReasons[milestoneId] = reason;
 
                         selectElement.className = `status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass('Cancel')} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent`;
-                        await saveToLAN();
+                        
+                        if(window.saveToCloud) await window.saveToCloud(record);
                     }
                 }
                 document.getElementById('cancel-reason-modal').classList.add('hidden');
@@ -852,18 +917,18 @@
                 window.samplesData = window.samplesData.filter(s => s.id !== id); 
                 window.renderAll();
                 window.showToast("Đã xoá dữ liệu."); 
-                await saveToLAN();
+                if(window.deleteFromCloud) await window.deleteFromCloud(id);
             }
         };
 
         window.lockRecord = async function(id) {
             const record = window.samplesData.find(s => s.id === id);
-            if (record) { record.locked = true; window.renderAll(); window.showToast("Đã khoá bản ghi."); await saveToLAN(); }
+            if (record) { record.locked = true; window.renderAll(); window.showToast("Đã khoá bản ghi."); if(window.saveToCloud) await window.saveToCloud(record); }
         };
         
         window.unlockRecord = async function(id) {
             const record = window.samplesData.find(s => s.id === id);
-            if (record) { record.locked = false; window.renderAll(); window.showToast("Đã mở khoá bản ghi."); await saveToLAN(); }
+            if (record) { record.locked = false; window.renderAll(); window.showToast("Đã mở khoá bản ghi."); if(window.saveToCloud) await window.saveToCloud(record); }
         };
 
         window.exportDataManual = function() {
@@ -986,10 +1051,10 @@
         window.toggleTheme = function() {
             window.isLightMode = !window.isLightMode;
             localStorage.setItem('dod_theme_pref', window.isLightMode ? 'light' : 'dark');
-            applyTheme();
+            window.applyTheme();
         };
 
-        function applyTheme() {
+        window.applyTheme = function() {
             const body = document.body;
             const themeIcon = document.getElementById('theme-icon');
             const themeText = document.getElementById('theme-text');
@@ -1361,7 +1426,7 @@
         };
 
         // --- RENDER HTML NHÓM ---
-        function initCheckboxes() {
+        window.initCheckboxes = function() {
             const createGroupHtml = (groupKey, title, unitStr, activeBg, panelBg, borderClass, textClass, activeText) => {
                 const milestones = MILESTONES.filter(m => m.group === groupKey);
                 const checksHtml = milestones.map(m => `
@@ -1431,13 +1496,6 @@
                 )}
             `;
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initCheckboxes();
-            applyTheme();
-            loadLocalData(); 
-            window.switchTab('dashboard');
-        });
 
     </script>
 </body>
