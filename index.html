@@ -86,11 +86,6 @@
         .status-select { appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.25rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-right: 1.5rem; }
         .date-highlight { background-color: #fde047 !important; color: #000000 !important; text-shadow: none !important; -webkit-text-stroke: 0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.3); border: none !important; }
 
-        .cond-card { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; }
-        .check-st-parent .peer:checked ~ .cond-card { background-color: rgba(244, 63, 94, 0.15) !important; border-color: #f43f5e !important; } .check-st-parent .peer:checked ~ .cond-card span { color: #fb7185 !important; } .check-st-parent .peer:checked ~ .cond-card .check-indicator { background-color: #f43f5e !important; border-color: #f43f5e !important; } .check-st-parent .peer:checked ~ .cond-card .check-indicator i { color: #ffffff !important; }
-        .check-ac-parent .peer:checked ~ .cond-card { background-color: rgba(14, 165, 233, 0.15) !important; border-color: #0ea5e9 !important; } .check-ac-parent .peer:checked ~ .cond-card span { color: #38bdf8 !important; } .check-ac-parent .peer:checked ~ .cond-card .check-indicator { background-color: #0ea5e9 !important; border-color: #0ea5e9 !important; } .check-ac-parent .peer:checked ~ .cond-card .check-indicator i { color: #ffffff !important; }
-        .check-lt-parent .peer:checked ~ .cond-card { background-color: rgba(16, 185, 129, 0.15) !important; border-color: #10b981 !important; } .check-lt-parent .peer:checked ~ .cond-card span { color: #34d399 !important; } .check-lt-parent .peer:checked ~ .cond-card .check-indicator { background-color: #10b981 !important; border-color: #10b981 !important; } .check-lt-parent .peer:checked ~ .cond-card .check-indicator i { color: #ffffff !important; }
-
         /* LIGHT THEME */
         body.light-theme { background: radial-gradient(circle at 15% 50%, #f1f5f9, #e2e8f0, #cbd5e1); color: #1e293b; }
         body.light-theme .glass-panel { background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%); border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05); color: #0f172a; }
@@ -127,38 +122,86 @@
         body.light-theme .bg-rose-900\/60 { background-color: #ffe4e6 !important; color: #be123c !important; border-color: #fecdd3 !important;}
         body.light-theme .form-panel { background: #ffffff !important; border-top: 4px solid #0284c7 !important; }
         body.light-theme .form-section-title { color: #b45309 !important; border-bottom-color: #fde68a !important; }
-        body.light-theme .cond-box { background: #ffffff !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
-        body.light-theme .cond-card { background-color: #ffffff !important; border-color: #cbd5e1 !important; }
-        body.light-theme .cond-card span { color: #334155 !important; }
-        body.light-theme .check-st-parent .peer:checked ~ .cond-card { background-color: #fff1f2 !important; border-color: #f43f5e !important; }
-        body.light-theme .check-st-parent .peer:checked ~ .cond-card span { color: #e11d48 !important; }
-        body.light-theme .check-ac-parent .peer:checked ~ .cond-card { background-color: #f0f9ff !important; border-color: #0ea5e9 !important; }
-        body.light-theme .check-ac-parent .peer:checked ~ .cond-card span { color: #0284c7 !important; }
-        body.light-theme .check-lt-parent .peer:checked ~ .cond-card { background-color: #ecfdf5 !important; border-color: #10b981 !important; }
-        body.light-theme .check-lt-parent .peer:checked ~ .cond-card span { color: #059669 !important; }
 
-        @keyframes fadeInQty { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
-        .qty-anim { animation: fadeInQty 0.2s ease-out forwards; }
-
-        /* PRINT STYLES - CHỈ IN BẢNG KẾ HOẠCH */
+        /* PRINT STYLES - CHỈ IN BẢNG KẾ HOẠCH BẰNG BỐ CỤC CHUYÊN DỤNG */
+        #print-section { display: none; }
+        
         @media print {
+            @page { size: A4 landscape; margin: 15mm; }
             body, html { height: auto !important; overflow: visible !important; background: white !important; color: black !important; }
-            .flex-1 { overflow: visible !important; margin: 0 !important; padding: 0 !important; }
-            #app-sidebar, #auto-save-indicator, .form-panel, button, .action-btn-group, .calendar-grid, .print\:hidden { display: none !important; }
-            .glass-panel { background: white !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; height: auto !important; overflow: visible !important; }
-            #tab-dashboard { overflow: visible !important; }
-            h2, h3 { color: black !important; text-shadow: none !important; }
-            .data-table th { background: #f3f4f6 !important; color: black !important; border: 1px solid #000 !important; -webkit-print-color-adjust: exact; }
-            .data-table td { border: 1px solid #000 !important; color: black !important; }
-            select { border: none !important; appearance: none; background: transparent !important; color: black !important; font-weight: bold; }
-            .bg-st, .bg-ac, .bg-lt { background: #e5e7eb !important; color: black !important; -webkit-print-color-adjust: exact; }
-            tr { page-break-inside: avoid; }
+            
+            /* Ẩn toàn bộ UI App, chỉ hiện khu vực in */
+            body > *:not(#toast-container):not(#print-section) { display: none !important; }
+            
+            #print-section { display: block !important; width: 100%; font-family: 'Times New Roman', Times, serif; }
+            .print-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; font-size: 14px; }
+            .print-title { text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
+            
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .print-table th, .print-table td { border: 1px solid black !important; padding: 8px 6px; text-align: center; font-size: 12px; }
+            .print-table th { background-color: #f3f4f6 !important; font-weight: bold; -webkit-print-color-adjust: exact; }
+            .print-table td.text-left { text-align: left; }
+            
+            .print-footer { display: flex; justify-content: space-around; margin-top: 40px; font-weight: bold; font-size: 14px; }
+            .print-signature-space { height: 80px; }
         }
     </style>
 </head>
 <body class="font-sans h-screen flex overflow-hidden selection:bg-cyan-500/30">
 
     <div id="toast-container"></div>
+
+    <!-- CANCEL REASON MODAL -->
+    <div id="cancel-reason-modal" class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="glass-panel p-6 rounded-xl w-96 flex flex-col gap-4 shadow-2xl border border-rose-500/30">
+            <h3 class="text-rose-400 font-bold text-sm uppercase flex items-center gap-2"><i class="fa-solid fa-ban"></i> Lý do hủy lấy mẫu</h3>
+            <p class="text-xs text-gray-300 mb-1">Vui lòng nhập lý do hủy để cập nhật vào báo cáo.</p>
+            <input type="text" id="cancel-reason-input" class="glass-input w-full rounded-md px-3 py-2 text-sm" placeholder="Nhập lý do hủy...">
+            <div class="flex justify-end gap-2 mt-2">
+                <button id="cancel-reason-close" class="glass-btn px-4 py-1.5 rounded-md text-xs font-bold text-gray-400 hover:text-white transition-colors">Đóng</button>
+                <button id="cancel-reason-save" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 rounded-md text-xs font-bold transition-colors shadow-md">Xác nhận Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHU VỰC IN ẨN (Chỉ hiện khi bấm nút In) -->
+    <div id="print-section">
+        <div class="print-header">
+            <div>PHÒNG QC - BỘ PHẬN ĐỘ ỔN ĐỊNH</div>
+            <div id="print-date">Ngày in: DD/MM/YYYY</div>
+        </div>
+        <div class="print-title">KẾ HOẠCH LẤY MẪU DOD - <span id="print-month-title"></span></div>
+        
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">STT</th>
+                    <th style="width: 20%;">Tên sản phẩm</th>
+                    <th style="width: 10%;">PIC</th>
+                    <th style="width: 12%;">Số Lô</th>
+                    <th style="width: 18%;">Điều kiện / Ngày lấy</th>
+                    <th style="width: 8%;">SL (HL)</th>
+                    <th style="width: 8%;">SL (VS)</th>
+                    <th style="width: 10%;">Trạng thái</th>
+                    <th style="width: 9%;">Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody id="print-tbody">
+                <!-- Dữ liệu in sẽ được Javascript đổ vào đây -->
+            </tbody>
+        </table>
+
+        <div class="print-footer">
+            <div class="text-center">
+                Người lập kế hoạch
+                <div class="print-signature-space"></div>
+            </div>
+            <div class="text-center">
+                Người phụ trách kiểm tra
+                <div class="print-signature-space"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- SIDEBAR -->
     <aside id="app-sidebar" class="w-40 glass-panel flex flex-col z-20 shrink-0 border-r border-white/10 rounded-r-2xl m-2 mr-0 transition-[width] duration-300 relative overflow-hidden">
@@ -264,7 +307,7 @@
                                     <span id="stat-pending" class="text-rose-400 font-bold text-lg drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]">0</span>
                                 </div>
                                 <div class="flex justify-between items-center bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-500/30 shadow-inner">
-                                    <span class="text-emerald-300 font-medium text-[11px]">Đã lấy xong</span>
+                                    <span class="text-emerald-300 font-medium text-[11px]">Đã xử lý</span>
                                     <span id="stat-done" class="text-emerald-400 font-bold text-lg drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]">0</span>
                                 </div>
                             </div>
@@ -280,7 +323,7 @@
 
                         <div class="glass-panel rounded-2xl p-3 flex-1 flex flex-col min-h-0 border-l-4 border-l-rose-500 bg-rose-900/10">
                             <h3 class="text-xs font-bold text-rose-400 flex items-center gap-2 mb-1.5 border-b border-white/20 pb-1.5 shrink-0 drop-shadow-md">
-                                <i class="fa-solid fa-circle-exclamation"></i> Mẫu trễ hẹn (Quá hạn)
+                                <i class="fa-solid fa-circle-exclamation"></i> Mẫu quá hạn (Hủy)
                             </h3>
                             <div id="overdue-list" class="overflow-y-auto pr-1 flex-1 space-y-1.5"></div>
                         </div>
@@ -303,7 +346,7 @@
                                 KẾ HOẠCH LẤY MẪU DOD <span id="list-month-title" class="text-cyan-900 bg-cyan-400 px-1.5 py-0.5 rounded ml-1 shadow-[0_0_10px_rgba(34,211,238,0.5)] print:bg-transparent print:text-black print:shadow-none print:p-0">Tháng</span>
                             </h2>
                             <!-- NÚT IN KẾ HOẠCH -->
-                            <button onclick="window.print()" class="glass-btn px-2.5 py-1 rounded-md text-cyan-400 hover:text-cyan-300 font-bold text-[10px] flex items-center gap-1.5 transition-all print:hidden" title="In Danh Sách Kế Hoạch Này Ra Giấy A4">
+                            <button onclick="prepareAndPrint()" class="glass-btn px-2.5 py-1 rounded-md text-cyan-400 hover:text-cyan-300 font-bold text-[10px] flex items-center gap-1.5 transition-all print:hidden" title="In Danh Sách Kế Hoạch Này Ra Giấy A4">
                                 <i class="fa-solid fa-print"></i> In Kế Hoạch
                             </button>
                         </div>
@@ -489,13 +532,12 @@
                                 </div>
                             </div>
 
-                            <!-- CONDITIONS GROUP -->
                             <div class="mt-8">
-                                <div class="flex justify-between items-end mb-3 border-b border-amber-500/30 pb-2">
+                                <div class="flex justify-between items-end mb-4 border-b border-amber-500/30 pb-2">
                                     <h3 class="text-sm font-bold text-amber-300 uppercase tracking-wider form-section-title">Điều Kiện Lưu Mẫu</h3>
                                     <div class="flex items-center gap-3">
                                         <label class="text-[11px] font-bold text-gray-300 uppercase tracking-wide form-label">Đơn vị:</label>
-                                        <input type="text" id="sampleUnit" list="unitSuggestions" class="glass-input rounded-md px-3 py-1.5 text-sm w-36" placeholder="Vd: viên...">
+                                        <input type="text" id="sampleUnit" list="unitSuggestions" class="glass-input rounded-md px-3 py-1.5 text-sm w-36 font-bold" placeholder="Vd: viên...">
                                         <datalist id="unitSuggestions">
                                             <option value="Viên"></option>
                                             <option value="Hộp"></option>
@@ -504,19 +546,9 @@
                                     </div>
                                 </div>
 
-                                <div class="bg-black/20 border border-white/10 shadow-inner rounded-xl p-5 space-y-6 cond-box">
-                                    <div>
-                                        <h4 class="text-[11px] font-bold text-rose-400 mb-3 border-b border-rose-500/30 pb-1 inline-block uppercase cond-group-title">ST (50°C / 75%RH)</h4>
-                                        <div id="wrapper-st-checks" class="grid grid-cols-2 md:grid-cols-6 gap-x-4 gap-y-5 text-gray-200"></div>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-[11px] font-bold text-cyan-400 mb-3 border-b border-cyan-500/30 pb-1 inline-block uppercase cond-group-title">AC (40°C / 75%RH)</h4>
-                                        <div id="wrapper-ac-checks" class="grid grid-cols-2 md:grid-cols-6 gap-x-4 gap-y-5 text-gray-200"></div>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-[11px] font-bold text-emerald-400 mb-3 border-b border-emerald-500/30 pb-1 inline-block uppercase cond-group-title">LT (30°C / 75%RH)</h4>
-                                        <div id="wrapper-lt-checks" class="grid grid-cols-2 md:grid-cols-6 gap-x-4 gap-y-5 text-gray-200"></div>
-                                    </div>
+                                <!-- KHUNG CHECKBOX NHÓM (Render tự động bằng JS) -->
+                                <div id="conditions-grid-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <!-- Rendered by initCheckboxes() -->
                                 </div>
                             </div>
                             
@@ -536,7 +568,7 @@
         window.samplesData = [];
         window.searchQuery = "";
         window.isLightMode = localStorage.getItem('dod_theme_pref') === 'light';
-        let lanFileHandle = null; // Quản lý File trên LAN
+        let lanFileHandle = null; 
         
         let currentDate = new Date();
         window.calMonth = currentDate.getMonth();
@@ -584,7 +616,7 @@
             return d;
         };
 
-        // ================= LAN FILE SYSTEM (NO CLOUD) =================
+        // ================= LAN FILE SYSTEM =================
         function updateDBStatus(state) {
             const dot = document.getElementById('db-status-dot');
             const dotMini = document.getElementById('db-status-dot-mini');
@@ -614,7 +646,7 @@
                     types: [{ description: 'DOD Database JSON', accept: {'application/json': ['.json']} }],
                     multiple: false
                 });
-                await syncFromLAN(true); // Tải dữ liệu lần đầu
+                await syncFromLAN(true); 
             } catch (error) {
                 console.error(error);
                 if(error.name !== 'AbortError') showToast("Lỗi kết nối file: " + error.message, "error");
@@ -637,7 +669,6 @@
                     window.samplesData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 }
                 
-                // Lưu backup cục bộ
                 localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
                 
                 window.renderAll();
@@ -669,7 +700,6 @@
                     lanFileHandle = null; updateDBStatus('offline');
                 }
             } 
-            // Luôn lưu vào LocalStorage để dự phòng
             localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
         }
 
@@ -688,25 +718,36 @@
             updateDBStatus('offline');
         }
 
-        // ================= APP LOGIC =================
+        // ================= APP LOGIC MỚI =================
         window.saveRecord = async function(event) {
             event.preventDefault();
             const id = getVal('recordId') || 'ID_' + Date.now();
             let existingStatuses = {};
+            let existingCancelReasons = {};
             let createdAt = Date.now();
             
             if (getVal('recordId')) { 
                 const old = window.samplesData.find(s => s.id === id); 
-                if (old) { existingStatuses = old.statuses || {}; createdAt = old.createdAt || Date.now(); }
+                if (old) { 
+                    existingStatuses = old.statuses || {}; 
+                    existingCancelReasons = old.cancelReasons || {};
+                    createdAt = old.createdAt || Date.now(); 
+                }
             }
 
             const selectedConditions = [];
             const quantities = {};
+            
             document.querySelectorAll('input[name="conditions"]').forEach(cb => {
                 if (cb.checked) {
                     selectedConditions.push(cb.value);
-                    const idPart = cb.value.replace(/\s+/g, '_');
-                    quantities[cb.value] = { HL: getVal('hl_' + idPart), VS: getVal('vs_' + idPart) };
+                    const ms = MILESTONES.find(m => m.label === cb.value);
+                    if (ms) {
+                        quantities[cb.value] = { 
+                            HL: getVal('group_hl_' + ms.group), 
+                            VS: getVal('group_vs_' + ms.group) 
+                        };
+                    }
                 }
             });
             
@@ -728,30 +769,81 @@
                 project: getVal('project').trim(), retentionDate: getVal('retentionDate'), 
                 nsx: getVal('nsx'), hsd: hsdValue, shelfLife: getVal('shelfLife'),
                 purpose: getVal('purpose').trim(), unit: getVal('sampleUnit').trim(),
-                conditions: selectedConditions, quantities: quantities, statuses: existingStatuses 
+                conditions: selectedConditions, quantities: quantities, 
+                statuses: existingStatuses, cancelReasons: existingCancelReasons
             };
             
             const idx = window.samplesData.findIndex(s => s.id === id);
             if (idx >= 0) window.samplesData[idx] = record; 
-            else window.samplesData.unshift(record); // Add to top
+            else window.samplesData.unshift(record); 
             
             window.renderAll();
             window.switchTab('table');
             window.showToast("Đã lưu mẫu thành công!");
             
-            // Ghi thẳng xuống file LAN
             await saveToLAN();
         };
+
+        window.pendingCancelUpdate = null;
 
         window.updateStatus = async function(recordId, milestoneId, selectElement) {
             const newStatus = selectElement.value;
             const record = window.samplesData.find(s => s.id === recordId);
             if (!record) return;
+
+            // Xử lý Popup nhập Lý do Hủy
+            if (newStatus === 'Cancel') {
+                const oldStatus = (record.statuses && record.statuses[milestoneId]) ? record.statuses[milestoneId] : 'Pending';
+                window.pendingCancelUpdate = { recordId, milestoneId, selectElement, oldStatus };
+                document.getElementById('cancel-reason-input').value = (record.cancelReasons && record.cancelReasons[milestoneId]) ? record.cancelReasons[milestoneId] : '';
+                document.getElementById('cancel-reason-modal').classList.remove('hidden');
+                document.getElementById('cancel-reason-modal').classList.add('flex');
+                document.getElementById('cancel-reason-input').focus();
+                return;
+            }
+
             if (!record.statuses) record.statuses = {};
             record.statuses[milestoneId] = newStatus;
             selectElement.className = `status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass(newStatus)} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent`;
+            window.renderWarningModules();
             await saveToLAN();
         };
+
+        // Bắt sự kiện cho Modal Hủy
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('cancel-reason-close').addEventListener('click', () => {
+                if (window.pendingCancelUpdate) {
+                    window.pendingCancelUpdate.selectElement.value = window.pendingCancelUpdate.oldStatus;
+                }
+                document.getElementById('cancel-reason-modal').classList.add('hidden');
+                document.getElementById('cancel-reason-modal').classList.remove('flex');
+                window.pendingCancelUpdate = null;
+            });
+
+            document.getElementById('cancel-reason-save').addEventListener('click', async () => {
+                if (window.pendingCancelUpdate) {
+                    const { recordId, milestoneId, selectElement } = window.pendingCancelUpdate;
+                    const reason = document.getElementById('cancel-reason-input').value.trim();
+                    if(!reason) { showToast("Vui lòng nhập lý do hủy!", "error"); return; }
+
+                    const record = window.samplesData.find(s => s.id === recordId);
+                    if(record) {
+                        if (!record.statuses) record.statuses = {};
+                        if (!record.cancelReasons) record.cancelReasons = {};
+                        record.statuses[milestoneId] = 'Cancel';
+                        record.cancelReasons[milestoneId] = reason;
+
+                        selectElement.className = `status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass('Cancel')} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent`;
+                        await saveToLAN();
+                    }
+                }
+                document.getElementById('cancel-reason-modal').classList.add('hidden');
+                document.getElementById('cancel-reason-modal').classList.remove('flex');
+                window.pendingCancelUpdate = null;
+                window.renderAll(); 
+                showToast("Đã cập nhật trạng thái Hủy!");
+            });
+        });
 
         window.deleteRecord = async function(id) {
             const record = window.samplesData.find(s => s.id === id);
@@ -786,7 +878,7 @@
         window.exportToExcel = function() {
             if(window.samplesData.length === 0) { window.showToast("Không có dữ liệu để xuất Excel", "error"); return; }
             try {
-                let ws_data = [["No", "Product Name", "Owner/PIC", "Lot No", "Mfg Date", "Exp Date", "Retention Date", "Change Control", "Project", "Purpose", "Condition", "Time Point", "Status"]];
+                let ws_data = [["No", "Product Name", "Owner/PIC", "Lot No", "Mfg Date", "Exp Date", "Retention Date", "Change Control", "Project", "Purpose", "Condition", "Time Point", "Status", "Cancel Reason"]];
                 let count = 1;
                 window.samplesData.forEach(s => {
                     if (s.conditions && s.conditions.length > 0) {
@@ -794,10 +886,11 @@
                             const ms = MILESTONES.find(m => m.label === condLabel);
                             if(ms) {
                                 const st = (s.statuses && s.statuses[ms.id]) ? s.statuses[ms.id] : 'Pending';
-                                ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', ms.group, ms.label.split(' ')[1], st]);
+                                const reason = (s.cancelReasons && s.cancelReasons[ms.id]) ? s.cancelReasons[ms.id] : '';
+                                ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', ms.group, ms.label.split(' ')[1], st, reason]);
                             }
                         });
-                    } else { ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', 'N/A', 'N/A', 'N/A']); }
+                    } else { ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', 'N/A', 'N/A', 'N/A', '']); }
                 });
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(ws_data);
@@ -805,6 +898,66 @@
                 XLSX.writeFile(wb, `DOD_Report_${Date.now()}.xlsx`);
                 window.showToast("Đã tải xuống file Excel!");
             } catch(e) { console.error(e); window.showToast("Lỗi khi xuất Excel", "error"); }
+        };
+
+        window.prepareAndPrint = function() {
+            const today = new Date();
+            const dateString = ("0" + today.getDate()).slice(-2) + "/" + ("0" + (today.getMonth() + 1)).slice(-2) + "/" + today.getFullYear();
+            document.getElementById('print-date').innerText = "Ngày in: " + dateString;
+            document.getElementById('print-month-title').innerText = `THÁNG ${window.calMonth + 1} / ${window.calYear}`;
+
+            const printTbody = document.getElementById('print-tbody');
+            printTbody.innerHTML = ''; 
+            
+            let list = [];
+            const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
+
+            dataArr.forEach(s => {
+                if ((s.productName||'').toLowerCase().includes(window.searchQuery) || (s.lotNo||'').toLowerCase().includes(window.searchQuery)) {
+                    if (!s.retentionDate || !s.conditions) return;
+                    MILESTONES.forEach(ms => {
+                        if (s.conditions.includes(ms.label)) {
+                            const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
+                            if (d && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { 
+                                list.push({ s, ms, d, cond: ms.label }); 
+                            }
+                        }
+                    });
+                }
+            });
+
+            list.sort((a, b) => a.d - b.d);
+
+            if (list.length === 0) {
+                printTbody.innerHTML = `<tr><td colspan="9">Không có mẫu nào cần lấy trong tháng này.</td></tr>`;
+            } else {
+                list.forEach((item, index) => {
+                    const status = (item.s.statuses && item.s.statuses[item.ms.id]) || 'Pending';
+                    const hlQty = (item.s.quantities && item.s.quantities[item.cond]) ? item.s.quantities[item.cond].HL || '-' : '-';
+                    const vsQty = (item.s.quantities && item.s.quantities[item.cond]) ? item.s.quantities[item.cond].VS || '-' : '-';
+                    
+                    let statusText = status === 'Done' ? 'Đã lấy' : (status === 'Cancel' ? 'Đã Hủy' : 'Chờ lấy');
+                    let remarkAddon = (status === 'Cancel' && item.s.cancelReasons && item.s.cancelReasons[item.ms.id]) ? `(Lý do: ${item.s.cancelReasons[item.ms.id]})` : '';
+                    
+                    printTbody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td class="text-left"><strong>${item.s.productName}</strong></td>
+                            <td>${item.s.ownerPic || ''}</td>
+                            <td>${item.s.lotNo}</td>
+                            <td>${item.cond} - ${window.formatDisplayDate(item.d.toISOString())}</td>
+                            <td>${hlQty}</td>
+                            <td>${vsQty}</td>
+                            <td>${statusText}</td>
+                            <td>${item.s.purpose || ''} <span class="italic text-[10px]">${remarkAddon}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
         };
 
         // UI View Functions
@@ -815,7 +968,6 @@
                 if(el) { if(id === tabId) { el.classList.remove('hidden'); if(id !== 'dashboard') el.classList.add('flex'); } else { el.classList.add('hidden'); el.classList.remove('flex'); } }
                 if(btn) btn.classList.toggle('active', id === tabId);
             });
-            // Force re-render of calendar grid if dashboard is active to prevent glitches
             if(tabId === 'dashboard') {
                 setTimeout(window.renderCalendar, 50);
             }
@@ -892,20 +1044,19 @@
             }
         };
 
-        window.toggleQty = function(id) {
-            const cb = document.querySelector('input[id="cond_' + id + '"]');
-            const qtyDiv = document.getElementById('qty_' + id);
-            if(qtyDiv && cb) {
-                if (cb.checked) qtyDiv.classList.remove('hidden');
-                else { qtyDiv.classList.add('hidden'); setVal('hl_' + id, ''); setVal('vs_' + id, ''); }
-            }
-        };
-
         window.openAddForm = function() {
             document.getElementById('dataForm').reset();
             setVal('recordId', ''); setVal('nsx', ''); setVal('retentionDate', '');
             setVal('nsx_display', ''); setVal('retentionDate_display', ''); setVal('sampleUnit', '');
-            document.querySelectorAll('input[name="conditions"]').forEach(cb => { cb.checked = false; const qtyDiv = document.getElementById('qty_' + cb.value.replace(/\s+/g, '_')); if(qtyDiv) qtyDiv.classList.add('hidden'); });
+            
+            ['ST', 'AC', 'LT'].forEach(g => {
+                setVal('group_hl_' + g, ''); setVal('group_vs_' + g, '');
+                if(document.getElementById('group_hl_' + g)) document.getElementById('group_hl_' + g).disabled = true;
+                if(document.getElementById('group_vs_' + g)) document.getElementById('group_vs_' + g).disabled = true;
+            });
+
+            document.querySelectorAll('input[name="conditions"]').forEach(cb => cb.checked = false);
+            
             document.getElementById('formPageTitle').innerHTML = '<i class="fa-solid fa-file-circle-plus text-cyan-400"></i> KHỞI TẠO MẪU MỚI';
             window.switchTab('form');
         };
@@ -914,16 +1065,31 @@
             const record = window.samplesData.find(s => s.id === id); 
             if (!record) return;
             if (record.locked) { window.showToast("Bản ghi bị khoá.", "error"); return; }
-            document.querySelectorAll('input[name="conditions"]').forEach(cb => { cb.checked = false; const qtyDiv = document.getElementById('qty_' + cb.value.replace(/\s+/g, '_')); if(qtyDiv) qtyDiv.classList.add('hidden'); });
+            
+            document.querySelectorAll('input[name="conditions"]').forEach(cb => cb.checked = false);
+            ['ST', 'AC', 'LT'].forEach(g => {
+                setVal('group_hl_' + g, ''); setVal('group_vs_' + g, '');
+                if(document.getElementById('group_hl_' + g)) document.getElementById('group_hl_' + g).disabled = true;
+                if(document.getElementById('group_vs_' + g)) document.getElementById('group_vs_' + g).disabled = true;
+            });
             
             setVal('recordId', record.id); setVal('productName', record.productName || ''); setVal('ownerPic', record.ownerPic || ''); setVal('lotNo', record.lotNo || ''); setVal('changeControl', record.changeControl || ''); setVal('project', record.project || ''); setVal('retentionDate', record.retentionDate || ''); setVal('nsx', record.nsx || ''); setVal('shelfLife', record.shelfLife || ''); setVal('purpose', record.purpose || ''); setVal('sampleUnit', record.unit || '');
             window.updateDateDisplay('nsx', 'nsx_display'); window.updateDateDisplay('retentionDate', 'retentionDate_display');
             
             if (record.conditions) {
                 record.conditions.forEach(cond => {
-                    const condId = cond.replace(/\s+/g, '_');
-                    const cb = document.querySelector('input[id="cond_' + condId + '"]');
-                    if (cb) { cb.checked = true; window.toggleQty(condId); if (record.quantities && record.quantities[cond]) { setVal('hl_' + condId, record.quantities[cond].HL || ''); setVal('vs_' + condId, record.quantities[cond].VS || ''); } }
+                    const ms = MILESTONES.find(m => m.label === cond);
+                    if (ms) {
+                        const cb = document.querySelector('input[id="cond_' + ms.id + '"]');
+                        if (cb) { 
+                            cb.checked = true; 
+                            window.toggleGroupInput(ms.group); 
+                            if (record.quantities && record.quantities[cond]) { 
+                                setVal('group_hl_' + ms.group, record.quantities[cond].HL || ''); 
+                                setVal('group_vs_' + ms.group, record.quantities[cond].VS || ''); 
+                            } 
+                        }
+                    }
                 });
             }
             document.getElementById('formPageTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-cyan-400"></i> CẬP NHẬT MẪU LƯU';
@@ -947,7 +1113,7 @@
 
         window.getStatusColorClass = function(status) {
             if (status === 'Done' || status === 'done') return 'bg-emerald-900/60 text-emerald-300 border-emerald-500/50 shadow-[inset_0_0_8px_rgba(16,185,129,0.3)]';
-            if (status === 'Delayed') return 'bg-rose-900/60 text-rose-300 border-rose-500/50 shadow-[inset_0_0_8px_rgba(244,63,94,0.3)]';
+            if (status === 'Cancel') return 'bg-rose-900/60 text-rose-300 border-rose-500/50 shadow-[inset_0_0_8px_rgba(244,63,94,0.3)]';
             return 'bg-amber-900/60 text-amber-300 border-amber-500/50 shadow-[inset_0_0_8px_rgba(245,158,11,0.3)]'; 
         };
 
@@ -1003,7 +1169,6 @@
 
             let events = {}, stats = { total: 0, done: 0, pending: 0 };
             
-            // Bảo vệ vòng lặp bằng cách chắc chắn mảng tồn tại
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
 
             dataArr.forEach(s => {
@@ -1015,7 +1180,8 @@
                             const day = d.getDate();
                             if (!events[day]) events[day] = { st: 0, ac: 0, lt: 0 };
                             events[day][ms.group.toLowerCase()]++; stats.total++;
-                            (s.statuses && s.statuses[ms.id] === 'Done') ? stats.done++ : stats.pending++;
+                            const st = (s.statuses && s.statuses[ms.id]) ? s.statuses[ms.id] : 'Pending';
+                            (st === 'Done' || st === 'Cancel') ? stats.done++ : stats.pending++;
                         }
                     }
                 });
@@ -1079,7 +1245,7 @@
                         <select onchange="updateStatus('${item.s.id}', '${item.ms.id}', this)" class="status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass(status)} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent">
                             <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
                             <option value="Done" ${status === 'Done' ? 'selected' : ''}>Done</option>
-                            <option value="Delayed" ${status === 'Delayed' ? 'selected' : ''}>Delayed</option>
+                            <option value="Cancel" ${status === 'Cancel' ? 'selected' : ''}>Cancel</option>
                         </select>
                     </td>
                     <td class="text-gray-400 italic max-w-[120px] text-left truncate print:whitespace-normal print:text-black" title="${item.s.purpose || ''}">${item.s.purpose || ''}</td>
@@ -1144,41 +1310,107 @@
                 MILESTONES.forEach(ms => {
                     if (s.conditions.includes(ms.label)) {
                         const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
-                        if (d && (!s.statuses || s.statuses[ms.id] !== 'Done')) { d.setHours(0, 0, 0, 0); if (d < today) overdue.push({ s, ms, d }); else if (d >= today && d <= next7Days) upcoming.push({ s, ms, d }); }
+                        const status = (s.statuses && s.statuses[ms.id]) ? s.statuses[ms.id] : 'Pending';
+
+                        if (d && status !== 'Done') { 
+                            d.setHours(0, 0, 0, 0); 
+                            // Các mẫu bị Hủy (Cancel) hoặc Đã quá ngày thì cho vào mục Cảnh báo Hủy/Quá hạn
+                            if (status === 'Cancel' || d < today) { 
+                                overdue.push({ s, ms, d, status, reason: (s.cancelReasons && s.cancelReasons[ms.id]) ? s.cancelReasons[ms.id] : '' }); 
+                            } else if (d >= today && d <= next7Days) { 
+                                upcoming.push({ s, ms, d }); 
+                            } 
+                        }
                     }
                 });
             });
 
             overdue.sort((a, b) => a.d - b.d); upcoming.sort((a, b) => a.d - b.d);
-            const renderWarn = (arr, id, emptyHtml, colorClass) => {
+            const renderWarn = (arr, id, emptyHtml, colorClass, isOverdueList = false) => {
                 const c = document.getElementById(id); if (!c) return;
                 if (arr.length === 0) c.innerHTML = emptyHtml;
-                else c.innerHTML = arr.map(item => `<div class="${colorClass} p-1.5 rounded shadow-inner flex justify-between items-center"><div class="flex flex-col"><span class="text-[11px] font-bold text-gray-200">${item.s.productName} <span class="font-normal opacity-80">(${item.ms.label})</span></span></div><span class="text-[10px] date-highlight px-1.5 py-0.5 rounded">${window.formatDisplayDate(item.d.toISOString())}</span></div>`).join('');
+                else c.innerHTML = arr.map(item => {
+                    let reasonHtml = '';
+                    if (isOverdueList && item.status === 'Cancel') {
+                        reasonHtml = `<div class="text-[9px] text-rose-300 dark:text-rose-300 italic mt-0.5 line-clamp-1 break-all flex items-center gap-1" title="Lý do: ${item.reason || ''}"><i class="fa-solid fa-ban text-rose-500"></i> Hủy: ${item.reason || ''}</div>`;
+                    }
+                    return `<div class="${colorClass} p-1.5 rounded shadow-inner flex justify-between items-center"><div class="flex flex-col"><span class="text-[11px] font-bold text-gray-200">${item.s.productName} <span class="font-normal opacity-80">(${item.ms.label})</span></span>${reasonHtml}</div><span class="text-[10px] date-highlight px-1.5 py-0.5 rounded">${window.formatDisplayDate(item.d.toISOString())}</span></div>`;
+                }).join('');
             };
 
-            renderWarn(overdue, 'overdue-list', `<div class="empty-warning-rose">Không có mẫu nào bị trễ.</div>`, 'bg-rose-950/40 border border-rose-500/20');
+            renderWarn(overdue, 'overdue-list', `<div class="empty-warning-rose">Không có mẫu nào quá hạn/hủy.</div>`, 'bg-rose-950/40 border border-rose-500/20', true);
             renderWarn(upcoming, 'upcoming-list', `<div class="empty-warning-amber">Không có mẫu nào sắp tới.</div>`, 'bg-amber-950/40 border border-amber-500/20');
         };
 
-        function initCheckboxes() {
-            const createHtml = (arr, groupClass) => arr.map(m => `
-                <div class="flex flex-col gap-1.5 ${groupClass}">
-                    <label class="relative cursor-pointer select-none">
-                        <input type="checkbox" id="cond_${m.id}" name="conditions" value="${m.label}" onchange="toggleQty('${m.id}')" class="sr-only peer">
-                        <div class="cond-card px-3 py-2"><div class="check-indicator w-4 h-4 border border-gray-400 rounded flex items-center justify-center transition-all shrink-0 mr-2"><i class="fa-solid fa-check text-[9px] text-transparent peer-checked:text-white"></i></div><span class="text-xs font-bold transition-colors">${m.label.split(' ')[1]}</span></div>
-                    </label>
-                    <div id="qty_${m.id}" class="hidden grid grid-cols-2 gap-1 shrink-0 qty-anim">
-                        <input type="number" id="hl_${m.id}" placeholder="HL" class="w-full h-8 text-[11px] text-center glass-input rounded-md outline-none" min="0">
-                        <input type="number" id="vs_${m.id}" placeholder="VS" class="w-full h-8 text-[11px] text-center glass-input rounded-md outline-none" min="0">
-                    </div>
-                </div>`).join('');
+        // --- HÀM KIỂM TRA ĐIỀU KIỆN CHO TỪNG NHÓM ---
+        window.toggleGroupInput = function(groupKey) {
+            const milestones = MILESTONES.filter(m => m.group === groupKey);
+            const isAnyChecked = milestones.some(m => document.getElementById('cond_' + m.id)?.checked);
             
-            document.getElementById('wrapper-st-checks').innerHTML = createHtml(MILESTONES.filter(m => m.group === 'ST'), 'check-st-parent text-rose-300');
-            document.getElementById('wrapper-ac-checks').innerHTML = createHtml(MILESTONES.filter(m => m.group === 'AC'), 'check-ac-parent text-cyan-300');
-            document.getElementById('wrapper-lt-checks').innerHTML = createHtml(MILESTONES.filter(m => m.group === 'LT'), 'check-lt-parent text-emerald-300');
+            const hlInput = document.getElementById('group_hl_' + groupKey);
+            const vsInput = document.getElementById('group_vs_' + groupKey);
+
+            if (hlInput && vsInput) {
+                hlInput.disabled = !isAnyChecked;
+                vsInput.disabled = !isAnyChecked;
+                if (!isAnyChecked) {
+                    hlInput.value = '';
+                    vsInput.value = '';
+                }
+            }
+        };
+
+        // --- RENDER HTML NHÓM ---
+        function initCheckboxes() {
+            const createGroupHtml = (groupKey, title, unitStr, bgActive, bgPanel, borderColor, textColor) => {
+                const milestones = MILESTONES.filter(m => m.group === groupKey);
+                const checksHtml = milestones.map(m => `
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <div class="relative flex items-center justify-center w-5 h-5 shrink-0">
+                            <input type="checkbox" id="cond_${m.id}" name="conditions" value="${m.label}" class="peer sr-only" onchange="toggleGroupInput('${groupKey}')">
+                            <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-slate-800 peer-checked:${bgActive} peer-checked:border-transparent transition-all flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-check text-white text-[10px] font-bold opacity-0 peer-checked:opacity-100"></i>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-slate-700 dark:text-gray-300 transition-colors group-hover:${textColor}">${m.label.split(' ')[1]}</span>
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="rounded-2xl border ${borderColor} ${bgPanel} dark:bg-black/20 p-5 flex flex-col h-full shadow-sm transition-all hover:shadow-md">
+                        <div class="flex justify-between items-center border-b ${borderColor} pb-3 mb-5">
+                            <h4 class="text-[15px] font-extrabold ${textColor}">${title}</h4>
+                            <span class="text-xs font-extrabold ${textColor}">${unitStr}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-y-4 gap-x-2 flex-1 mb-6 pl-1">
+                            ${checksHtml}
+                        </div>
+                        
+                        <div class="border-t ${borderColor} pt-4 mt-auto">
+                            <div class="flex justify-between gap-4 mb-1">
+                                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 w-1/2 text-center">SL Hóa Lý (HL)</span>
+                                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 w-1/2 text-center">SL Vi Sinh (VS)</span>
+                            </div>
+                            <div class="flex gap-4">
+                                <input type="number" id="group_hl_${groupKey}" class="w-1/2 text-center font-black text-xl ${textColor} bg-transparent border-b-2 border-gray-300/50 dark:border-gray-600 focus:outline-none focus:border-current transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled placeholder="-">
+                                <input type="number" id="group_vs_${groupKey}" class="w-1/2 text-center font-black text-xl ${textColor} bg-transparent border-b-2 border-gray-300/50 dark:border-gray-600 focus:outline-none focus:border-current transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled placeholder="-">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const container = document.getElementById('conditions-grid-container');
+            if(!container) return;
+            
+            container.innerHTML = `
+                ${createGroupHtml('ST', 'ST (50°C/75%RH)', 'W/M', 'bg-rose-500', 'bg-rose-50/60', 'border-rose-200 dark:border-rose-500/30', 'text-rose-500 dark:text-rose-400')}
+                ${createGroupHtml('AC', 'AC (40°C/75%RH)', 'Month', 'bg-cyan-500', 'bg-cyan-50/60', 'border-cyan-200 dark:border-cyan-500/30', 'text-cyan-500 dark:text-cyan-400')}
+                ${createGroupHtml('LT', 'LT (30°C/75%RH)', 'Month', 'bg-emerald-500', 'bg-emerald-50/60', 'border-emerald-200 dark:border-emerald-500/30', 'text-emerald-500 dark:text-emerald-400')}
+            `;
         }
 
-        // Tự động load dữ liệu LocalStorage phòng trường hợp mất file LAN
         document.addEventListener('DOMContentLoaded', () => {
             initCheckboxes();
             applyTheme();
