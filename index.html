@@ -148,24 +148,24 @@
     <div id="toast-container"></div>
 
     <!-- AUTHENTICATION MODAL (PHÂN QUYỀN) -->
-    <div id="auth-modal" class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-md">
-        <div class="glass-panel p-8 rounded-2xl w-[400px] text-center border-t-4 border-t-cyan-500 shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-emerald-500 to-amber-500"></div>
-            <h2 class="text-xl font-black text-cyan-400 mb-1 tracking-widest drop-shadow-md"><i class="fa-solid fa-shield-halved"></i> STABILITY SYSTEM</h2>
+    <div id="auth-modal" class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-[#121822] p-8 rounded-[2rem] w-[420px] text-center shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] border border-white/5 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-400 via-emerald-400 to-amber-500"></div>
+            <h2 class="text-[22px] font-black text-cyan-400 mb-1 tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-shield-halved text-xl"></i> STABILITY SYSTEM</h2>
             <p class="text-xs text-gray-300 mb-8 font-medium">Vui lòng chọn vai trò để truy cập hệ thống</p>
 
-            <div class="space-y-4">
-                <button onclick="loginAs('viewer')" class="w-full glass-btn py-3.5 rounded-xl font-bold text-emerald-400 flex items-center justify-center gap-2 hover:bg-emerald-900/30 transition-all border border-emerald-500/30 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)]">
+            <div class="space-y-5">
+                <button onclick="loginAs('viewer')" class="w-full bg-[#1e2631] hover:bg-[#252f3d] py-4 rounded-[1.25rem] font-bold text-emerald-400 flex items-center justify-center gap-2 transition-all border border-white/5 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                     <i class="fa-solid fa-eye text-lg"></i> Truy cập Quyền Khách (Chỉ Xem)
                 </button>
 
-                <div class="relative pt-4 border-t border-white/10 mt-4">
-                    <label class="block text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Khu vực Quản trị viên</label>
-                    <input type="password" id="admin-pass" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-center font-bold text-amber-300 placeholder-gray-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="Nhập mật khẩu Admin..." onkeyup="if(event.key === 'Enter') loginAs('admin')">
-                    <button onclick="loginAs('admin')" class="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all">
+                <div class="relative pt-6 border-t border-white/10 mt-2">
+                    <label class="block text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Khu vực Quản trị viên</label>
+                    <input type="password" id="admin-pass" class="w-full bg-[#0b1017] border border-white/5 rounded-[1.25rem] px-5 py-4 text-sm text-center font-bold text-gray-300 placeholder-gray-600 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all outline-none" placeholder="Nhập mật khẩu Admin..." onkeyup="if(event.key === 'Enter') loginAs('admin')">
+                    
+                    <button onclick="loginAs('admin')" class="w-full mt-4 bg-[#f97316] hover:bg-[#ea580c] text-white py-4 rounded-[1.25rem] font-bold flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.35)] transition-all">
                         <i class="fa-solid fa-user-tie"></i> Đăng nhập Admin
                     </button>
-                    <p class="text-[9px] text-gray-500 mt-2 italic">* Mật khẩu mặc định: 123456</p>
                 </div>
             </div>
         </div>
@@ -827,7 +827,7 @@
         window.loginAs = function(role) {
             if (role === 'admin') {
                 const pass = document.getElementById('admin-pass').value;
-                if (pass !== '123456') { 
+                if (pass !== 'N@ng123456') { 
                     window.showToast("Mật khẩu Quản trị viên không chính xác!", "error");
                     return;
                 }
@@ -1122,8 +1122,8 @@
         window.toggleTheme = function() { window.isLightMode = !window.isLightMode; localStorage.setItem('dod_theme_pref', window.isLightMode ? 'light' : 'dark'); window.applyTheme(); };
         window.applyTheme = function() {
             const body = document.body; const themeIcon = document.getElementById('theme-icon'); const themeText = document.getElementById('theme-text');
-            if (window.isLightMode) { body.classList.add('light-theme'); if(themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); } if(themeText) themeText.innerText = "Dark Mode"; } 
-            else { body.classList.remove('light-theme'); if(themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); } if(themeText) themeText.innerText = "Light Mode"; }
+            if (window.isLightMode) { body.classList.add('light-theme'); if(themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); } if(themeText) themeText.innerText = "THEME"; } 
+            else { body.classList.remove('light-theme'); if(themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); } if(themeText) themeText.innerText = "THEME"; }
         }
 
         window.toggleGroup = function(group) {
