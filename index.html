@@ -30,6 +30,22 @@
         .glass-input { background: rgba(0, 0, 0, 0.4) !important; border: 1px solid rgba(255, 255, 255, 0.25) !important; color: #f8fafc !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         .glass-input:focus { background: rgba(0, 0, 0, 0.6) !important; border-color: rgba(34, 211, 238, 0.8) !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 0 0 0 2px rgba(34, 211, 238, 0.3); outline: none; }
 
+        /* TINTED PASTEL CARDS (Thẻ màu theo điều kiện) */
+        .card-st { background: rgba(244, 63, 94, 0.05) !important; border: 1px solid rgba(244, 63, 94, 0.2) !important; }
+        .card-st .card-divider { border-color: rgba(244, 63, 94, 0.2) !important; }
+        body.light-theme .card-st { background: rgba(244, 63, 94, 0.08) !important; border: 1px solid rgba(244, 63, 94, 0.4) !important; }
+        body.light-theme .card-st .card-divider { border-color: rgba(244, 63, 94, 0.4) !important; }
+
+        .card-ac { background: rgba(6, 182, 212, 0.05) !important; border: 1px solid rgba(6, 182, 212, 0.2) !important; }
+        .card-ac .card-divider { border-color: rgba(6, 182, 212, 0.2) !important; }
+        body.light-theme .card-ac { background: rgba(6, 182, 212, 0.08) !important; border: 1px solid rgba(6, 182, 212, 0.4) !important; }
+        body.light-theme .card-ac .card-divider { border-color: rgba(6, 182, 212, 0.4) !important; }
+
+        .card-lt { background: rgba(16, 185, 129, 0.05) !important; border: 1px solid rgba(16, 185, 129, 0.2) !important; }
+        .card-lt .card-divider { border-color: rgba(16, 185, 129, 0.2) !important; }
+        body.light-theme .card-lt { background: rgba(16, 185, 129, 0.08) !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+        body.light-theme .card-lt .card-divider { border-color: rgba(16, 185, 129, 0.4) !important; }
+
         /* BẢNG BIỂU */
         .table-container { height: 100%; overflow: auto; padding-bottom: 20px; }
         .data-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.72rem; }
@@ -1590,22 +1606,22 @@
         };
 
         window.initCheckboxes = function() {
-            const createGroupHtml = (groupKey, title, unitStr, activeBg, panelBg, borderClass, textClass, activeText) => {
+            const createGroupHtml = (groupKey, title, unitStr, activeBg, cardClass, textClass, activeText) => {
                 const milestones = MILESTONES.filter(m => m.group === groupKey);
                 const checksHtml = milestones.map(m => `
                     <label class="flex items-center gap-3 cursor-pointer group relative">
                         <input type="checkbox" id="cond_${m.id}" name="conditions" value="${m.label}" class="peer sr-only" onchange="toggleGroupInput('${groupKey}')">
                         <div class="w-5 h-5 shrink-0 border-2 border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-slate-800 ${activeBg} peer-checked:border-transparent transition-all shadow-sm"></div>
                         <i class="fa-solid fa-check absolute left-[5px] top-1/2 -translate-y-1/2 text-[10px] font-bold opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" style="color: #ffffff !important;"></i>
-                        <span class="text-sm font-bold text-slate-700 dark:text-gray-300 transition-colors ${activeText}">${m.label.split(' ')[1]}</span>
+                        <span class="text-sm font-bold text-slate-600 dark:text-gray-300 transition-colors ${activeText}">${m.label.split(' ')[1]}</span>
                     </label>
                 `).join('');
 
                 return `
-                    <div class="rounded-2xl border ${borderClass} ${panelBg} dark:bg-black/20 p-5 flex flex-col h-full shadow-sm transition-all hover:shadow-md">
-                        <div class="flex justify-between items-center border-b ${borderClass} pb-3 mb-5"><h4 class="text-[15px] font-extrabold ${textClass}">${title}</h4><span class="text-xs font-extrabold ${textClass}">${unitStr}</span></div>
+                    <div class="rounded-2xl ${cardClass} p-5 flex flex-col h-full shadow-sm transition-all hover:shadow-md backdrop-blur-sm">
+                        <div class="flex justify-between items-center border-b card-divider pb-3 mb-5"><h4 class="text-[15px] font-extrabold ${textClass}">${title}</h4><span class="text-xs font-extrabold ${textClass}">${unitStr}</span></div>
                         <div class="grid grid-cols-2 gap-y-4 gap-x-2 flex-1 mb-6 pl-1">${checksHtml}</div>
-                        <div class="border-t ${borderClass} pt-4 mt-auto">
+                        <div class="border-t card-divider pt-4 mt-auto">
                             <div class="flex justify-between gap-4 mb-1"><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 w-1/2 text-center">SL Hóa Lý (HL)</span><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 w-1/2 text-center">SL Vi Sinh (VS)</span></div>
                             <div class="flex gap-4">
                                 <input type="number" id="group_hl_${groupKey}" class="w-1/2 text-center font-black text-xl ${textClass} bg-transparent border-b-2 border-gray-300/50 dark:border-gray-600 focus:outline-none focus:border-current transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled placeholder="-">
@@ -1618,9 +1634,9 @@
 
             const container = document.getElementById('conditions-grid-container'); if(!container) return;
             container.innerHTML = `
-                ${createGroupHtml('ST', 'ST (50°C/75%RH)', 'W/M', 'peer-checked:bg-rose-500', 'bg-rose-50/60', 'border-rose-200 dark:border-rose-500/30', 'text-rose-500 dark:text-rose-400', 'group-hover:text-rose-500 peer-checked:text-rose-500 dark:group-hover:text-rose-400 dark:peer-checked:text-rose-400')}
-                ${createGroupHtml('AC', 'AC (40°C/75%RH)', 'Month', 'peer-checked:bg-cyan-500', 'bg-cyan-50/60', 'border-cyan-200 dark:border-cyan-500/30', 'text-cyan-500 dark:text-cyan-400', 'group-hover:text-cyan-500 peer-checked:text-cyan-500 dark:group-hover:text-cyan-400 dark:peer-checked:text-cyan-400')}
-                ${createGroupHtml('LT', 'LT (30°C/75%RH)', 'Month', 'peer-checked:bg-emerald-500', 'bg-emerald-50/60', 'border-emerald-200 dark:border-emerald-500/30', 'text-emerald-500 dark:text-emerald-400', 'group-hover:text-emerald-500 peer-checked:text-emerald-500 dark:group-hover:text-emerald-400 dark:peer-checked:text-emerald-400')}
+                ${createGroupHtml('ST', 'ST (50°C/75%RH)', 'W/M', 'peer-checked:bg-rose-500', 'card-st', 'text-rose-600 dark:text-rose-400', 'group-hover:text-rose-600 peer-checked:text-rose-600 dark:group-hover:text-rose-400 dark:peer-checked:text-rose-400')}
+                ${createGroupHtml('AC', 'AC (40°C/75%RH)', 'Month', 'peer-checked:bg-cyan-500', 'card-ac', 'text-cyan-600 dark:text-cyan-400', 'group-hover:text-cyan-600 peer-checked:text-cyan-600 dark:group-hover:text-cyan-400 dark:peer-checked:text-cyan-400')}
+                ${createGroupHtml('LT', 'LT (30°C/75%RH)', 'Month', 'peer-checked:bg-emerald-500', 'card-lt', 'text-emerald-600 dark:text-emerald-400', 'group-hover:text-emerald-600 peer-checked:text-emerald-600 dark:group-hover:text-emerald-400 dark:peer-checked:text-emerald-400')}
             `;
         }
     </script>
