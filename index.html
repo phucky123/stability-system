@@ -172,29 +172,49 @@
     <div id="toast-container"></div>
 
     <!-- AUTHENTICATION MODAL (PHÂN QUYỀN) -->
-    <div id="auth-modal" class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-        <div class="bg-[#121822] p-8 rounded-[2rem] w-[420px] text-center shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] border border-white/5 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-400 via-emerald-400 to-amber-500"></div>
-            <h2 class="text-[22px] font-black text-cyan-400 mb-1 tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-shield-halved text-xl"></i> STABILITY SYSTEM</h2>
-            <p class="text-xs text-gray-300 mb-8 font-medium">Vui lòng chọn vai trò để truy cập hệ thống</p>
+    <div id="auth-modal" class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-md">
+        
+        <!-- Vầng sáng (Ambient Light) -->
+        <div class="absolute w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[100px] pointer-events-none"></div>
 
-            <div class="space-y-5">
-                <button onclick="loginAs('viewer')" class="w-full bg-[#1e2631] hover:bg-[#252f3d] py-4 rounded-[1.25rem] font-bold text-emerald-400 flex items-center justify-center gap-2 transition-all border border-white/5 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+        <div class="glass-panel p-8 rounded-[2rem] w-[420px] text-center relative overflow-hidden z-10 shadow-[0_15px_50px_-10px_rgba(0,0,0,0.5)]">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-cyan-400 via-emerald-400 to-amber-500"></div>
+            
+            <div class="mb-8 mt-2">
+                <div class="w-16 h-16 mx-auto bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-cyan-500/30 border border-white/20">
+                    <i class="fa-solid fa-shield-halved text-3xl" style="color: #ffffff !important;"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-200 tracking-widest drop-shadow-sm">STABILITY</h2>
+                <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-widest">Xác thực hệ thống</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Nút Quyền Khách -->
+                <button onclick="loginAs('viewer')" class="w-full glass-btn py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm hover:scale-[1.02]">
                     <i class="fa-solid fa-eye text-lg"></i> Truy cập Quyền Khách (Chỉ Xem)
                 </button>
 
-                <div class="relative pt-6 border-t border-white/10 mt-2">
-                    <label class="block text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Đăng nhập tài khoản nội bộ</label>
+                <!-- Khu vực đăng nhập nội bộ -->
+                <div class="border-t border-white/10 pt-6 relative mt-2">
+                    <label class="block text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 pl-1">Đăng nhập tài khoản nội bộ</label>
+                    
                     <div class="flex flex-col gap-3">
-                        <select id="login-username" class="w-full bg-[#0b1017] border border-white/5 rounded-[1.25rem] px-5 py-4 text-sm font-bold text-cyan-300 outline-none focus:border-amber-500/50 appearance-none text-center cursor-pointer">
-                            <option value="admin">Quản trị viên (Admin)</option>
-                            <option value="tsoffice">TS Office</option>
-                            <option value="qcoffice">QC Office</option>
-                        </select>
-                        <input type="password" id="login-pass" class="w-full bg-[#0b1017] border border-white/5 rounded-[1.25rem] px-5 py-4 text-sm text-center font-bold text-gray-300 placeholder-gray-600 focus:border-amber-500/50 transition-all outline-none" placeholder="Nhập mật khẩu..." onkeyup="if(event.key === 'Enter') loginAs('internal')">
+                        <div class="relative group">
+                            <select id="login-username" class="w-full glass-input rounded-xl px-4 py-3.5 text-sm font-bold text-cyan-300 outline-none appearance-none text-center cursor-pointer transition-all shadow-inner">
+                                <option value="admin" class="bg-slate-800">Quản trị viên (Admin)</option>
+                                <option value="tsoffice" class="bg-slate-800">TS Office</option>
+                                <option value="qcoffice" class="bg-slate-800">QC Office</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none transition-colors"></i>
+                        </div>
+
+                        <input type="password" id="login-pass" class="w-full glass-input rounded-xl px-4 py-3.5 text-sm text-center font-bold text-gray-200 outline-none transition-all shadow-inner" placeholder="Nhập mật khẩu..." onkeyup="if(event.key === 'Enter') loginAs('internal')">
                         
-                        <button onclick="loginAs('internal')" class="w-full mt-2 bg-[#f97316] hover:bg-[#ea580c] text-white py-4 rounded-[1.25rem] font-bold flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.35)] transition-all">
-                            <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                        <button onclick="loginAs('internal')" class="relative overflow-hidden group w-full mt-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.6)] transform hover:-translate-y-0.5 transition-all duration-300 border border-orange-400/50" style="color: #ffffff !important;">
+                            <!-- Vệt sáng lướt qua (Shine Effect) -->
+                            <div class="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[50%] transition-transform duration-700 ease-in-out skew-x-12 pointer-events-none"></div>
+                            
+                            <i class="fa-solid fa-right-to-bracket group-hover:translate-x-1 transition-transform duration-300" style="color: #ffffff !important;"></i> Đăng nhập
                         </button>
                     </div>
                 </div>
