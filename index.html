@@ -139,8 +139,32 @@
             .print-table th { background-color: #f3f4f6 !important; font-weight: bold; -webkit-print-color-adjust: exact; }
             .print-table td.text-left { text-align: left; }
             .print-footer { display: flex; justify-content: space-around; margin-top: 40px; font-weight: bold; font-size: 14px; }
-            .print-signature-space { height: 80px; }
+        .print-signature-space { height: 80px; }
+    }
+
+    /* MOBILE OPTIMIZATIONS */
+    @media (max-width: 768px) {
+        .mobile-drawer {
+            position: fixed !important;
+            inset-y: 0;
+            left: 0;
+            transform: translateX(-100%);
+            z-index: 50;
+            height: 100vh;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: 10px 0 25px rgba(0,0,0,0.5);
         }
+        .mobile-drawer.open {
+            transform: translateX(0);
+        }
+        .touch-target {
+            min-height: 44px; /* Chuẩn vùng chạm Apple/Google */
+        }
+        .calendar-cell {
+            min-height: 50px; /* Giảm chút chiều cao lịch trên mobile để vừa màn hình */
+        }
+    }
     </style>
 </head>
 <body class="font-sans h-screen flex overflow-hidden selection:bg-cyan-500/30">
@@ -225,31 +249,38 @@
         </div>
     </div>
 
+    <!-- MOBILE OVERLAY -->
+    <div id="mobile-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
+
     <!-- SIDEBAR -->
-    <aside id="app-sidebar" class="w-40 glass-panel flex flex-col z-20 shrink-0 border-r border-white/10 rounded-r-2xl m-2 mr-0 transition-[width] duration-300 relative overflow-hidden">
+    <aside id="app-sidebar" class="w-64 md:w-40 glass-panel flex flex-col z-50 shrink-0 border-r border-white/10 rounded-r-2xl md:m-2 md:mr-0 transition-all duration-300 relative overflow-hidden mobile-drawer">
         <div id="sidebar-content" class="w-full flex flex-col h-full opacity-100 transition-opacity duration-200">
             
-            <div id="sidebar-header" class="py-3 flex flex-col items-center justify-center shrink-0 border-b border-white/10 transition-all">
+            <div id="sidebar-header" class="py-4 md:py-3 flex flex-col items-center justify-center shrink-0 border-b border-white/10 transition-all relative">
+                <!-- Nút đóng Sidebar chỉ hiện trên mobile -->
+                <button onclick="toggleMobileMenu()" class="md:hidden absolute right-3 top-3 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 rounded-full touch-target">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
                 <div class="flex flex-col items-center justify-center nav-text overflow-hidden leading-tight text-center">
-                    <span class="font-black text-[15px] text-cyan-400 tracking-widest drop-shadow-md">STABILITY</span>
-                    <span class="font-bold text-[10px] text-white tracking-widest drop-shadow-md">SYSTEM</span>
+                    <span class="font-black text-[18px] md:text-[15px] text-cyan-400 tracking-widest drop-shadow-md">STABILITY</span>
+                    <span class="font-bold text-[12px] md:text-[10px] text-white tracking-widest drop-shadow-md">SYSTEM</span>
                 </div>
                 <i class="fa-solid fa-flask text-xl text-cyan-400 hidden justify-center items-center drop-shadow-md collapsed-icon pt-1"></i>
             </div>
 
-            <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-0">
+            <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-0 custom-scrollbar">
                 <div class="px-4 mb-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest nav-text flex justify-between items-center">
                     Menu Chính
                     <span id="role-badge" class="text-[8px] bg-cyan-900/50 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30">ADMIN</span>
                 </div>
-                <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="sidebar-btn active w-full text-left px-4 py-2.5 flex items-center gap-3 text-[11px] text-gray-300">
-                    <i class="fa-solid fa-chart-pie w-4 text-center text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Dashboard</span>
+                <button onclick="switchTab('dashboard'); closeMobileMenu();" id="btn-tab-dashboard" class="sidebar-btn active w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target">
+                    <i class="fa-solid fa-chart-pie w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Dashboard</span>
                 </button>
-                <button onclick="switchTab('table')" id="btn-tab-table" class="sidebar-btn w-full text-left px-4 py-2.5 flex items-center gap-3 text-[11px] text-gray-300">
-                    <i class="fa-solid fa-database w-4 text-center text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Database</span>
+                <button onclick="switchTab('table'); closeMobileMenu();" id="btn-tab-table" class="sidebar-btn w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target">
+                    <i class="fa-solid fa-database w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Database</span>
                 </button>
-                <button onclick="openAddForm()" id="btn-tab-form" class="sidebar-btn w-full text-left px-4 py-2.5 flex items-center gap-3 text-[11px] text-gray-300">
-                    <i class="fa-solid fa-plus w-4 text-center text-sm shrink-0"></i><span class="nav-text whitespace-nowrap overflow-hidden">Thêm Mẫu</span>
+                <button onclick="openAddForm(); closeMobileMenu();" id="btn-tab-form" class="sidebar-btn w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target">
+                    <i class="fa-solid fa-plus w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i><span class="nav-text whitespace-nowrap overflow-hidden">Thêm Mẫu</span>
                 </button>
             </div>
             
@@ -291,15 +322,15 @@
 
                 <!-- Group Theme & Toggle -->
                 <div class="flex gap-1.5 w-full mt-1 action-btn-group">
-                    <button onclick="toggleTheme()" id="theme-btn" class="flex-1 glass-btn py-1.5 rounded flex justify-center items-center gap-1.5 text-[9px] text-gray-300 transition-all" title="Sáng/Tối">
-                        <i class="fa-solid fa-sun text-xs shrink-0" id="theme-icon"></i> <span class="nav-text font-bold uppercase tracking-wider" id="theme-text">Theme</span>
+                    <button onclick="toggleTheme()" id="theme-btn" class="flex-1 glass-btn py-2 md:py-1.5 rounded flex justify-center items-center gap-1.5 text-[10px] md:text-[9px] text-gray-300 transition-all touch-target" title="Sáng/Tối">
+                        <i class="fa-solid fa-sun text-sm md:text-xs shrink-0" id="theme-icon"></i> <span class="nav-text font-bold uppercase tracking-wider" id="theme-text">Theme</span>
                     </button>
-                    <button onclick="toggleSidebar()" id="toggle-sidebar-btn" class="glass-btn px-2.5 py-1.5 rounded flex justify-center items-center text-gray-400 hover:text-white transition-colors shrink-0" title="Đóng/Mở Sidebar">
+                    <button onclick="toggleSidebar()" id="toggle-sidebar-btn" class="hidden md:flex glass-btn px-2.5 py-1.5 rounded justify-center items-center text-gray-400 hover:text-white transition-colors shrink-0" title="Đóng/Mở Sidebar">
                         <svg id="sidebar-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
                     </button>
                 </div>
                 
-                <button onclick="logoutApp()" class="w-full mt-1 glass-btn py-1 rounded text-[9px] font-bold flex justify-center items-center gap-1.5 text-gray-400 hover:text-rose-400 nav-text" title="Đăng xuất">
+                <button onclick="logoutApp()" class="w-full mt-1 glass-btn py-2 md:py-1 rounded text-[10px] md:text-[9px] font-bold flex justify-center items-center gap-1.5 text-gray-400 hover:text-rose-400 nav-text touch-target" title="Đăng xuất">
                     <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
                 </button>
             </div>
@@ -309,7 +340,20 @@
     <!-- MAIN RIGHT WRAPPER -->
     <div class="flex-1 flex flex-col overflow-hidden relative">
 
-        <main class="flex-1 overflow-auto p-4 lg:p-4 mt-2 print:p-0 print:m-0 print:overflow-visible">
+        <!-- MOBILE TOPBAR (Chỉ hiện trên điện thoại) -->
+        <header class="md:hidden glass-panel shrink-0 h-14 border-b border-white/10 flex items-center justify-between px-4 z-30">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMobileMenu()" class="w-10 h-10 flex items-center justify-center text-white bg-white/5 rounded-lg touch-target">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div class="font-black text-[14px] text-cyan-400 tracking-widest drop-shadow-md">STABILITY</div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="mobile-db-dot" class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-auto p-3 md:p-4 lg:p-4 md:mt-2 print:p-0 print:m-0 print:overflow-visible">
             
             <!-- ================= TAB 1: DASHBOARD ================= -->
             <div id="tab-dashboard" class="w-full mx-auto space-y-4 block">
@@ -374,11 +418,13 @@
                     <div class="flex justify-between items-center bg-black/40 py-3 px-5 border-b border-white/20 print:bg-white print:px-0 print:border-none print:pb-4">
                         
                         <div class="flex items-center gap-3">
-                            <h2 class="font-bold text-xs uppercase flex items-center gap-2 text-white drop-shadow-md print:text-black print:drop-shadow-none print:text-lg">
+                            <h2 class="font-bold text-[11px] md:text-xs uppercase flex items-center gap-2 text-white drop-shadow-md print:text-black print:drop-shadow-none print:text-lg">
                                 <i class="fa-solid fa-list-check text-cyan-400 print:hidden"></i> 
-                                KẾ HOẠCH LẤY MẪU DOD <span id="list-month-title" class="text-cyan-900 bg-cyan-400 px-1.5 py-0.5 rounded ml-1 shadow-[0_0_10px_rgba(34,211,238,0.5)] print:bg-transparent print:text-black print:shadow-none print:p-0">Tháng</span>
+                                <span class="hidden sm:inline">KẾ HOẠCH LẤY MẪU DOD</span>
+                                <span class="sm:hidden">LẤY MẪU</span>
+                                <span id="list-month-title" class="text-cyan-900 bg-cyan-400 px-1.5 py-0.5 rounded ml-1 shadow-[0_0_10px_rgba(34,211,238,0.5)] print:bg-transparent print:text-black print:shadow-none print:p-0">Tháng</span>
                             </h2>
-                            <button onclick="prepareAndPrint()" class="glass-btn px-2.5 py-1 rounded-md text-cyan-400 hover:text-cyan-300 font-bold text-[10px] flex items-center gap-1.5 transition-all print:hidden" title="In Danh Sách Kế Hoạch Này Ra Giấy A4">
+                            <button onclick="prepareAndPrint()" class="hidden md:flex glass-btn px-2.5 py-1 rounded-md text-cyan-400 hover:text-cyan-300 font-bold text-[10px] items-center gap-1.5 transition-all print:hidden touch-target" title="In Danh Sách Kế Hoạch Này Ra Giấy A4">
                                 <i class="fa-solid fa-print"></i> In Kế Hoạch
                             </button>
                         </div>
@@ -409,18 +455,18 @@
             <div id="tab-table" class="h-full hidden flex-col w-full mx-auto">
                 <div class="glass-panel rounded-2xl h-full flex flex-col overflow-hidden border-t-cyan-500/50 border-t-2">
                     
-                    <div class="p-3 bg-black/40 border-b border-white/20 flex justify-between items-center gap-4 relative shrink-0 shadow-md">
-                        <div class="relative flex-1 max-w-xl flex gap-2">
+                    <div class="p-3 bg-black/40 border-b border-white/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 relative shrink-0 shadow-md">
+                        <div class="relative w-full sm:max-w-xl flex gap-2">
                             <div class="relative flex-1">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Tìm kiếm nhanh tên thuốc, số lô..." class="w-full glass-input rounded-full py-1.5 pl-9 pr-3 text-[11px] transition-all">
+                                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Tìm kiếm nhanh tên, số lô..." class="w-full glass-input rounded-full py-2.5 sm:py-1.5 pl-9 pr-3 text-sm md:text-[11px] transition-all touch-target">
                             </div>
                             <!-- NÚT XUẤT EXCEL -->
-                            <button onclick="exportToExcel()" class="glass-btn px-4 py-1.5 rounded-full flex items-center gap-2 text-[11px] text-emerald-400 font-bold hover:text-emerald-300 transition-colors border-emerald-500/30 whitespace-nowrap" title="Xuất dữ liệu bảng ra file Excel">
-                                <i class="fa-solid fa-file-excel"></i> Xuất Excel
+                            <button onclick="exportToExcel()" class="glass-btn px-4 py-2.5 sm:py-1.5 rounded-full flex items-center justify-center gap-2 text-sm md:text-[11px] text-emerald-400 font-bold hover:text-emerald-300 transition-colors border-emerald-500/30 whitespace-nowrap touch-target" title="Xuất dữ liệu bảng ra file Excel">
+                                <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Xuất Excel</span>
                             </button>
                         </div>
-                        <div id="auto-save-indicator" class="text-[10px] text-emerald-400 font-medium hidden absolute top-1.5 right-4 items-center gap-1 bg-emerald-900/50 border border-emerald-500/30 px-2 py-0.5 rounded shadow-inner">
+                        <div id="auto-save-indicator" class="text-[10px] text-emerald-400 font-medium hidden sm:flex absolute top-1.5 right-4 items-center gap-1 bg-emerald-900/50 border border-emerald-500/30 px-2 py-0.5 rounded shadow-inner">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Đã đồng bộ Cloud
                         </div>
                     </div>
@@ -501,32 +547,32 @@
             <!-- ================= TAB 3: THÊM / SỬA ================= -->
             <div id="tab-form" class="h-full hidden flex-col w-full mx-auto print:hidden">
                 <div class="glass-panel rounded-2xl h-full flex flex-col overflow-hidden border-t-cyan-500/50 border-t-2 form-panel relative">
-                    <div class="overflow-y-auto flex-1 p-6 lg:p-10 custom-scrollbar form-body bg-transparent scroll-smooth flex justify-center">
-                        <form id="dataForm" onsubmit="saveRecord(event)" class="space-y-6 w-full max-w-5xl">
+                    <div class="overflow-y-auto flex-1 p-4 sm:p-6 lg:p-10 custom-scrollbar form-body bg-transparent scroll-smooth flex justify-center">
+                        <form id="dataForm" onsubmit="saveRecord(event)" class="space-y-6 w-full max-w-5xl pb-10">
                             <input type="hidden" id="recordId">
                             
                             <div>
-                                <h3 id="formPageTitle" class="text-sm font-bold text-amber-300 uppercase tracking-wider mb-4 border-b border-amber-500/30 pb-2 inline-block form-section-title"><i class="fa-solid fa-file-circle-plus text-cyan-400"></i> KHỞI TẠO MẪU MỚI</h3>
+                                <h3 id="formPageTitle" class="text-sm font-bold text-amber-300 uppercase tracking-wider mb-4 border-b border-amber-500/30 pb-2 inline-block form-section-title w-full md:w-auto"><i class="fa-solid fa-file-circle-plus text-cyan-400"></i> KHỞI TẠO MẪU MỚI</h3>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 md:gap-y-6">
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Product Name <span class="text-rose-500">*</span></label>
-                                        <input type="text" id="productName" required class="w-full glass-input rounded-md px-3 py-2.5 text-sm" placeholder="Nhập tên sản phẩm...">
+                                        <input type="text" id="productName" required class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm touch-target" placeholder="Nhập tên sản phẩm...">
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Lot. No <span class="text-rose-500">*</span></label>
-                                        <input type="text" id="lotNo" required class="w-full glass-input rounded-md px-3 py-2.5 text-sm" placeholder="Nhập số Lot...">
+                                        <input type="text" id="lotNo" required class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm touch-target" placeholder="Nhập số Lot...">
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Owner/PIC</label>
-                                        <input type="text" id="ownerPic" class="w-full glass-input rounded-md px-3 py-2.5 text-sm" placeholder="Tên NV">
+                                        <input type="text" id="ownerPic" class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm touch-target" placeholder="Tên NV">
                                     </div>
                                     
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Mfg. Date</label>
                                         <div class="relative">
-                                            <input type="text" id="nsx_display" placeholder="DD/MMM/YYYY" class="w-full glass-input rounded-md py-2.5 pl-3 pr-10 text-sm" oninput="handleManualDateInput('nsx', 'nsx_display')">
-                                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400/70 cursor-pointer flex items-center justify-center h-full">
+                                            <input type="text" id="nsx_display" placeholder="DD/MMM/YYYY" class="w-full glass-input rounded-md py-3 md:py-2.5 pl-3 pr-10 text-sm touch-target" oninput="handleManualDateInput('nsx', 'nsx_display')">
+                                            <div class="absolute right-0 top-0 bottom-0 w-12 text-gray-400/70 cursor-pointer flex items-center justify-center">
                                                 <i class="fa-solid fa-calendar-days"></i>
                                                 <input type="date" id="nsx" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="updateDateDisplay('nsx', 'nsx_display')">
                                             </div>
@@ -534,13 +580,13 @@
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Shelf life (Tháng)</label>
-                                        <input type="number" id="shelfLife" min="0" class="w-full glass-input rounded-md px-3 py-2.5 text-sm" placeholder="Vd: 36" onchange="calculateExpDate()">
+                                        <input type="number" id="shelfLife" min="0" class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm touch-target" placeholder="Vd: 36" onchange="calculateExpDate()">
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-cyan-300 uppercase tracking-wide form-label">Retention Date</label>
                                         <div class="relative">
-                                            <input type="text" id="retentionDate_display" placeholder="DD/MMM/YYYY" class="w-full glass-input !border-cyan-500/50 rounded-md py-2.5 pl-3 pr-10 !text-cyan-100 font-medium text-sm" oninput="handleManualDateInput('retentionDate', 'retentionDate_display')">
-                                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-400/70 cursor-pointer flex items-center justify-center h-full">
+                                            <input type="text" id="retentionDate_display" placeholder="DD/MMM/YYYY" class="w-full glass-input !border-cyan-500/50 rounded-md py-3 md:py-2.5 pl-3 pr-10 !text-cyan-100 font-medium text-sm touch-target" oninput="handleManualDateInput('retentionDate', 'retentionDate_display')">
+                                            <div class="absolute right-0 top-0 bottom-0 w-12 text-cyan-400/70 cursor-pointer flex items-center justify-center">
                                                 <i class="fa-solid fa-calendar-check"></i>
                                                 <input type="date" id="retentionDate" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="updateDateDisplay('retentionDate', 'retentionDate_display')">
                                             </div>
@@ -548,28 +594,28 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 md:gap-y-6 mt-4 md:mt-6">
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Change Control</label>
-                                        <input type="text" id="changeControl" class="w-full glass-input rounded-md px-3 py-2.5 text-sm">
+                                        <input type="text" id="changeControl" class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm touch-target">
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Project</label>
-                                        <input type="text" id="project" class="w-full glass-input rounded-md px-3 py-2.5 text-sm">
+                                        <input type="text" id="project" class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm touch-target">
                                     </div>
                                     <div class="col-span-1 md:col-span-2 space-y-1.5">
                                         <label class="block text-xs font-bold text-gray-300 uppercase tracking-wide form-label">Purpose / Remark</label>
-                                        <textarea id="purpose" rows="2" class="w-full glass-input rounded-md px-3 py-2.5 text-sm resize-none" placeholder="Nhập ghi chú..."></textarea>
+                                        <textarea id="purpose" rows="2" class="w-full glass-input rounded-md px-3 py-3 md:py-2.5 text-sm resize-none touch-target" placeholder="Nhập ghi chú..."></textarea>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mt-8">
-                                <div class="flex justify-between items-end mb-4 border-b border-amber-500/30 pb-2">
+                            <div class="mt-6 md:mt-8">
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 border-b border-amber-500/30 pb-2 gap-2">
                                     <h3 class="text-sm font-bold text-amber-300 uppercase tracking-wider form-section-title">Điều Kiện Lưu Mẫu</h3>
-                                    <div class="flex items-center gap-3">
-                                        <label class="text-[11px] font-bold text-gray-300 uppercase tracking-wide form-label">Đơn vị:</label>
-                                        <input type="text" id="sampleUnit" list="unitSuggestions" class="glass-input rounded-md px-3 py-1.5 text-sm w-36 font-bold" placeholder="Vd: viên...">
+                                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                                        <label class="text-[11px] font-bold text-gray-300 uppercase tracking-wide form-label whitespace-nowrap">Đơn vị:</label>
+                                        <input type="text" id="sampleUnit" list="unitSuggestions" class="glass-input rounded-md px-3 py-2 md:py-1.5 text-sm w-full sm:w-36 font-bold touch-target" placeholder="Vd: viên...">
                                         <datalist id="unitSuggestions">
                                             <option value="Viên"></option>
                                             <option value="Hộp"></option>
@@ -584,8 +630,8 @@
                             </div>
                             
                             <div class="mt-8 flex justify-end gap-3 pt-5 border-t border-white/20">
-                                <button type="button" onclick="switchTab('table')" class="glass-btn px-6 py-2.5 rounded-lg text-gray-300 font-bold text-sm">Hủy Bỏ</button>
-                                <button type="submit" class="glass-btn-primary px-8 py-2.5 rounded-lg font-bold flex items-center gap-2 text-sm drop-shadow-md"><i class="fa-solid fa-floppy-disk"></i> LƯU MẪU MỚI</button>
+                                <button type="button" onclick="switchTab('table')" class="glass-btn px-6 py-3 md:py-2.5 rounded-lg text-gray-300 font-bold text-sm touch-target">Hủy Bỏ</button>
+                                <button type="submit" class="glass-btn-primary px-8 py-3 md:py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 text-sm drop-shadow-md touch-target flex-1 sm:flex-none"><i class="fa-solid fa-floppy-disk"></i> LƯU MẪU MỚI</button>
                             </div>
                         </form>
                     </div>
@@ -624,6 +670,7 @@
         window.updateDBStatus = function(state) {
             const dot = document.getElementById('db-status-dot');
             const dotMini = document.getElementById('db-status-dot-mini');
+            const mobileDot = document.getElementById('mobile-db-dot');
             const ping = document.getElementById('db-status-ping');
             const text = document.getElementById('db-status-text');
             if(!dot || !text) return;
@@ -632,18 +679,21 @@
                 dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10b981]';
                 if (ping) ping.className = 'hidden';
                 if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
+                if(mobileDot) mobileDot.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
                 text.innerText = 'TRỰC TUYẾN';
                 text.className = 'nav-text text-[9px] font-bold text-emerald-400';
             } else if (state === 'connecting') {
                 dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500';
                 if (ping) ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75';
                 if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                if(mobileDot) mobileDot.className = 'w-3 h-3 rounded-full bg-yellow-500 animate-pulse';
                 text.innerText = 'ĐANG KẾT NỐI...';
                 text.className = 'nav-text text-[9px] font-bold text-yellow-400';
             } else {
                 dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_#f43f5e]';
                 if (ping) ping.className = 'hidden';
                 if(dotMini) dotMini.className = 'w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
+                if(mobileDot) mobileDot.className = 'w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
                 text.innerText = 'NGOẠI TUYẾN';
                 text.className = 'nav-text text-[9px] font-bold text-rose-400';
             }
@@ -1110,13 +1160,40 @@
             if(tabId === 'dashboard') setTimeout(window.renderCalendar, 50);
         };
 
+        // --- Mobile Menu Toggle Logic ---
+        window.toggleMobileMenu = function() {
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.remove('hidden');
+            }
+        };
+
+        window.closeMobileMenu = function() {
+            if (window.innerWidth <= 768) {
+                document.getElementById('app-sidebar').classList.remove('open');
+                document.getElementById('mobile-overlay').classList.add('hidden');
+            }
+        };
+
         let isSidebarCollapsed = false;
         window.toggleSidebar = function() {
             isSidebarCollapsed = !isSidebarCollapsed;
             const sidebar = document.getElementById('app-sidebar'); const svgIcon = document.getElementById('sidebar-toggle-icon');
             if(!sidebar) return;
-            if (isSidebarCollapsed) { sidebar.classList.remove('w-40'); sidebar.classList.add('w-14', 'collapsed-sidebar'); if (svgIcon) svgIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />`; } 
-            else { sidebar.classList.remove('w-14', 'collapsed-sidebar'); sidebar.classList.add('w-40'); if (svgIcon) svgIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />`; }
+            if (isSidebarCollapsed) { 
+                sidebar.classList.remove('w-64', 'md:w-40'); 
+                sidebar.classList.add('w-14', 'md:w-14', 'collapsed-sidebar'); 
+                if (svgIcon) svgIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />`; 
+            } else { 
+                sidebar.classList.remove('w-14', 'md:w-14', 'collapsed-sidebar'); 
+                sidebar.classList.add('w-64', 'md:w-40'); 
+                if (svgIcon) svgIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />`; 
+            }
         };
 
         window.toggleTheme = function() { window.isLightMode = !window.isLightMode; localStorage.setItem('dod_theme_pref', window.isLightMode ? 'light' : 'dark'); window.applyTheme(); };
