@@ -139,32 +139,16 @@
             .print-table th { background-color: #f3f4f6 !important; font-weight: bold; -webkit-print-color-adjust: exact; }
             .print-table td.text-left { text-align: left; }
             .print-footer { display: flex; justify-content: space-around; margin-top: 40px; font-weight: bold; font-size: 14px; }
-        .print-signature-space { height: 80px; }
-    }
+            .print-signature-space { height: 80px; }
+        }
 
-    /* MOBILE OPTIMIZATIONS */
-    @media (max-width: 768px) {
-        .mobile-drawer {
-            position: fixed !important;
-            inset-y: 0;
-            left: 0;
-            transform: translateX(-100%);
-            z-index: 50;
-            height: 100vh;
-            margin: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: 10px 0 25px rgba(0,0,0,0.5);
+        /* MOBILE OPTIMIZATIONS */
+        @media (max-width: 768px) {
+            .mobile-drawer { position: fixed !important; inset-y: 0; left: 0; transform: translateX(-100%); z-index: 50; height: 100vh; margin: 0 !important; border-radius: 0 !important; box-shadow: 10px 0 25px rgba(0,0,0,0.5); }
+            .mobile-drawer.open { transform: translateX(0); }
+            .touch-target { min-height: 44px; }
+            .calendar-cell { min-height: 50px; }
         }
-        .mobile-drawer.open {
-            transform: translateX(0);
-        }
-        .touch-target {
-            min-height: 44px; /* Chuẩn vùng chạm Apple/Google */
-        }
-        .calendar-cell {
-            min-height: 50px; /* Giảm chút chiều cao lịch trên mobile để vừa màn hình */
-        }
-    }
     </style>
 </head>
 <body class="font-sans h-screen flex overflow-hidden selection:bg-cyan-500/30">
@@ -184,12 +168,19 @@
                 </button>
 
                 <div class="relative pt-6 border-t border-white/10 mt-2">
-                    <label class="block text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Khu vực Quản trị viên</label>
-                    <input type="password" id="admin-pass" class="w-full bg-[#0b1017] border border-white/5 rounded-[1.25rem] px-5 py-4 text-sm text-center font-bold text-gray-300 placeholder-gray-600 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all outline-none" placeholder="Nhập mật khẩu Admin..." onkeyup="if(event.key === 'Enter') loginAs('admin')">
-                    
-                    <button onclick="loginAs('admin')" class="w-full mt-4 bg-[#f97316] hover:bg-[#ea580c] text-white py-4 rounded-[1.25rem] font-bold flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.35)] transition-all">
-                        <i class="fa-solid fa-user-tie"></i> Đăng nhập Admin
-                    </button>
+                    <label class="block text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Đăng nhập tài khoản nội bộ</label>
+                    <div class="flex flex-col gap-3">
+                        <select id="login-username" class="w-full bg-[#0b1017] border border-white/5 rounded-[1.25rem] px-5 py-4 text-sm font-bold text-cyan-300 outline-none focus:border-amber-500/50 appearance-none text-center cursor-pointer">
+                            <option value="admin">Quản trị viên (Admin)</option>
+                            <option value="tsoffice">TS Office</option>
+                            <option value="qcoffice">QC Office</option>
+                        </select>
+                        <input type="password" id="login-pass" class="w-full bg-[#0b1017] border border-white/5 rounded-[1.25rem] px-5 py-4 text-sm text-center font-bold text-gray-300 placeholder-gray-600 focus:border-amber-500/50 transition-all outline-none" placeholder="Nhập mật khẩu..." onkeyup="if(event.key === 'Enter') loginAs('internal')">
+                        
+                        <button onclick="loginAs('internal')" class="w-full mt-2 bg-[#f97316] hover:bg-[#ea580c] text-white py-4 rounded-[1.25rem] font-bold flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.35)] transition-all">
+                            <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -271,7 +262,7 @@
             <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-0 custom-scrollbar">
                 <div class="px-4 mb-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest nav-text flex justify-between items-center">
                     Menu Chính
-                    <span id="role-badge" class="text-[8px] bg-cyan-900/50 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30">ADMIN</span>
+                    <span id="role-badge" class="text-[8px] bg-cyan-900/50 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30">GUEST</span>
                 </div>
                 <button onclick="switchTab('dashboard'); closeMobileMenu();" id="btn-tab-dashboard" class="sidebar-btn active w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target">
                     <i class="fa-solid fa-chart-pie w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Dashboard</span>
@@ -303,10 +294,8 @@
                 <!-- IMPORT/EXPORT ACTIONS -->
                 <div class="flex flex-col gap-1.5 w-full nav-text action-btn-group">
                     
-                    <!-- Ẩn Input File -->
                     <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleImportBackup(event)">
                     
-                    <!-- Nút Load Backup (Chỉ Admin) -->
                     <button id="btn-import-backup" onclick="document.getElementById('import-file').click()" class="w-full glass-btn py-1.5 rounded text-[10px] font-bold flex justify-center items-center gap-1.5 text-amber-400 hover:text-amber-300 border-amber-500/20 hover:border-amber-500/40" title="Nạp file dữ liệu từ máy tính (Ghi đè hệ thống)">
                         <i class="fa-solid fa-upload"></i> Nạp Backup (.json)
                     </button>
@@ -503,6 +492,7 @@
                                         </div>
                                     </th>
                                     
+                                    <th rowspan="2" class="min-w-[110px]">Log Cập Nhật</th>
                                     <th rowspan="2" class="w-16">Act</th>
                                 </tr>
                                 <tr>
@@ -646,7 +636,6 @@
         import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC5m2SLmjUzoDb5gVppiYnQllKC4I6O86o",
             authDomain: "stability-trial.firebaseapp.com",
@@ -665,7 +654,7 @@
         const isCanvas = typeof __firebase_config !== 'undefined';
 
         let unsubscribeSnapshot = null;
-        window.firebaseDB = db; // Export to global for batch operations
+        window.firebaseDB = db; 
 
         window.updateDBStatus = function(state) {
             const dot = document.getElementById('db-status-dot');
@@ -798,7 +787,8 @@
         window.samplesData = [];
         window.searchQuery = "";
         window.isLightMode = localStorage.getItem('dod_theme_pref') === 'light';
-        window.userRole = null; // 'admin' or 'viewer'
+        window.userRole = null; // 'admin', 'tsoffice', 'qcoffice', or 'viewer'
+        window.userDisplayName = "Khách";
         
         let currentDate = new Date();
         window.calMonth = currentDate.getMonth();
@@ -855,6 +845,18 @@
             return `${day}/${month}/${year}`; 
         };
 
+        window.formatLogTime = function(timestamp) {
+            if (!timestamp) return "";
+            const d = new Date(timestamp);
+            if (isNaN(d.getTime())) return ""; 
+            const day = d.getDate().toString().padStart(2, '0');
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const year = d.getFullYear().toString();
+            const hrs = d.getHours().toString().padStart(2, '0');
+            const mins = d.getMinutes().toString().padStart(2, '0');
+            return `${day}/${month}/${year} ${hrs}:${mins}`; 
+        };
+
         window.calculateFutureDateObj = function(baseDateString, amount, unit = 'M') {
             if (!baseDateString) return null;
             const d = new Date(baseDateString);
@@ -875,14 +877,28 @@
 
         // ================= XÁC THỰC (AUTH) =================
         window.loginAs = function(role) {
-            if (role === 'admin') {
-                const pass = document.getElementById('admin-pass').value;
-                if (pass !== 'N@ng123456') { 
-                    window.showToast("Mật khẩu Quản trị viên không chính xác!", "error");
+            let roleToSet = role;
+            let roleDisplayName = "";
+
+            if (role === 'internal') {
+                const user = document.getElementById('login-username').value;
+                const pass = document.getElementById('login-pass').value;
+
+                if (user === 'admin' && pass === 'N@ng123456') { roleToSet = 'admin'; roleDisplayName = "Admin"; }
+                else if (user === 'tsoffice' && pass === '12345678') { roleToSet = 'tsoffice'; roleDisplayName = "TS Office"; }
+                else if (user === 'qcoffice' && pass === '12345678') { roleToSet = 'qcoffice'; roleDisplayName = "QC Office"; }
+                else {
+                    window.showToast("Mật khẩu tài khoản không chính xác!", "error");
                     return;
                 }
+            } else {
+                roleToSet = 'viewer';
+                roleDisplayName = "Khách (Chỉ xem)";
             }
-            window.userRole = role;
+
+            window.userRole = roleToSet;
+            window.userDisplayName = roleDisplayName;
+
             document.getElementById('auth-modal').classList.add('hidden');
             document.getElementById('auth-modal').classList.remove('flex');
             
@@ -891,23 +907,35 @@
             const btnImport = document.getElementById('btn-import-backup');
             const roleBadge = document.getElementById('role-badge');
             
-            if (role === 'viewer') {
+            if (roleToSet === 'viewer') {
                 if(btnForm) btnForm.classList.add('hidden');
                 if(btnImport) btnImport.classList.add('hidden');
                 if(roleBadge) { roleBadge.innerText = 'VIEWER'; roleBadge.className = 'text-[8px] bg-emerald-900/50 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30'; }
             } else {
                 if(btnForm) btnForm.classList.remove('hidden');
-                if(btnImport) btnImport.classList.remove('hidden');
-                if(roleBadge) { roleBadge.innerText = 'ADMIN'; roleBadge.className = 'text-[8px] bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30'; }
+                if(btnImport) {
+                    if (roleToSet === 'admin') btnImport.classList.remove('hidden');
+                    else btnImport.classList.add('hidden'); // Only Admin exports/imports backup
+                }
+                if(roleBadge) {
+                    let badgeColor = roleToSet === 'admin' ? 'amber' : 'cyan';
+                    roleBadge.innerText = roleDisplayName.toUpperCase();
+                    roleBadge.className = `text-[8px] bg-${badgeColor}-900/50 text-${badgeColor}-300 px-1.5 py-0.5 rounded border border-${badgeColor}-500/30`;
+                    
+                    // Tailwind dynamic class fallback protection
+                    if(roleToSet === 'admin') roleBadge.className = 'text-[8px] bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30';
+                    else roleBadge.className = 'text-[8px] bg-cyan-900/50 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30';
+                }
             }
             
             window.renderAll();
-            window.showToast(`Đăng nhập thành công với quyền: ${role === 'admin' ? 'Quản trị viên' : 'Khách (Chỉ xem)'}`);
+            window.showToast(`Đăng nhập thành công với quyền: ${roleDisplayName}`);
         };
 
         window.logoutApp = function() {
             window.userRole = null;
-            document.getElementById('admin-pass').value = '';
+            window.userDisplayName = "Khách";
+            document.getElementById('login-pass').value = '';
             document.getElementById('auth-modal').classList.remove('hidden');
             document.getElementById('auth-modal').classList.add('flex');
             window.switchTab('dashboard');
@@ -954,14 +982,21 @@
         // ================= APP LOGIC =================
         window.saveRecord = async function(event) {
             event.preventDefault();
-            if (window.userRole !== 'admin') return;
+            if (window.userRole === 'viewer') return;
 
             const id = getVal('recordId') || 'ID_' + Date.now();
-            let existingStatuses = {}; let existingCancelReasons = {}; let createdAt = Date.now();
-            
+            let existingStatuses = {}; let existingCancelReasons = {}; 
+            let createdAt = Date.now();
+            let createdBy = window.userRole; // Record original creator
+
             if (getVal('recordId')) { 
                 const old = window.samplesData.find(s => s.id === id); 
-                if (old) { existingStatuses = old.statuses || {}; existingCancelReasons = old.cancelReasons || {}; createdAt = old.createdAt || Date.now(); }
+                if (old) { 
+                    existingStatuses = old.statuses || {}; 
+                    existingCancelReasons = old.cancelReasons || {}; 
+                    createdAt = old.createdAt || Date.now(); 
+                    createdBy = old.createdBy || window.userRole;
+                }
             }
 
             const selectedConditions = []; const quantities = {};
@@ -982,7 +1017,10 @@
             }
 
             const record = { 
-                id, createdAt, productName: getVal('productName').trim(), ownerPic: getVal('ownerPic').trim(),
+                id, createdAt, createdBy,
+                lastUpdatedBy: window.userDisplayName, 
+                lastUpdatedTime: Date.now(),
+                productName: getVal('productName').trim(), ownerPic: getVal('ownerPic').trim(),
                 lotNo: getVal('lotNo').trim(), changeControl: getVal('changeControl').trim(),
                 project: getVal('project').trim(), retentionDate: getVal('retentionDate'), 
                 nsx: getVal('nsx'), hsd: hsdValue, shelfLife: getVal('shelfLife'),
@@ -1001,7 +1039,7 @@
         window.pendingCancelUpdate = null;
 
         window.updateStatus = async function(recordId, milestoneId, selectElement) {
-            if(window.userRole !== 'admin') return;
+            if(window.userRole === 'viewer') return;
             const newStatus = selectElement.value;
             const record = window.samplesData.find(s => s.id === recordId);
             if (!record) return;
@@ -1017,8 +1055,15 @@
 
             if (!record.statuses) record.statuses = {};
             record.statuses[milestoneId] = newStatus;
+            
+            // Update Log info
+            record.lastUpdatedBy = window.userDisplayName;
+            record.lastUpdatedTime = Date.now();
+
             selectElement.className = `status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass(newStatus)} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent`;
             window.renderWarningModules();
+            window.renderTable(); // Refresh table to show updated Log
+
             if(window.saveToCloud) await window.saveToCloud(record);
         };
 
@@ -1037,7 +1082,13 @@
                     const record = window.samplesData.find(s => s.id === recordId);
                     if(record) {
                         if (!record.statuses) record.statuses = {}; if (!record.cancelReasons) record.cancelReasons = {};
-                        record.statuses[milestoneId] = 'Cancel'; record.cancelReasons[milestoneId] = reason;
+                        record.statuses[milestoneId] = 'Cancel'; 
+                        record.cancelReasons[milestoneId] = reason;
+                        
+                        // Update Log info
+                        record.lastUpdatedBy = window.userDisplayName;
+                        record.lastUpdatedTime = Date.now();
+
                         selectElement.className = `status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass('Cancel')} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent`;
                         if(window.saveToCloud) await window.saveToCloud(record);
                     }
@@ -1048,10 +1099,18 @@
         });
 
         window.deleteRecord = async function(id) {
-            if(window.userRole !== 'admin') return;
+            if(window.userRole === 'viewer') return;
             const record = window.samplesData.find(s => s.id === id);
-            if (record && record.locked) { window.showToast("Không thể xoá bản ghi bị khoá.", "error"); return; }
+            if (!record) return;
+            if (record.locked) { window.showToast("Không thể xoá bản ghi bị khoá.", "error"); return; }
             
+            // Check deletion permission
+            const canDelete = (window.userRole === 'admin') || (window.userRole === record.createdBy);
+            if (!canDelete) {
+                window.showToast("Từ chối: Bạn chỉ có thể xóa các mẫu do chính bạn tạo!", "error");
+                return;
+            }
+
             const ok = await window.customConfirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn mẫu lưu này?`);
             if (ok) { 
                 window.samplesData = window.samplesData.filter(s => s.id !== id); 
@@ -1062,21 +1121,30 @@
         };
 
         window.lockRecord = async function(id) {
-            if(window.userRole !== 'admin') return;
+            if(window.userRole === 'viewer') return;
             const record = window.samplesData.find(s => s.id === id);
-            if (record) { record.locked = true; window.renderAll(); window.showToast("Đã khoá bản ghi."); if(window.saveToCloud) await window.saveToCloud(record); }
+            if (record) { 
+                record.locked = true; 
+                record.lastUpdatedBy = window.userDisplayName;
+                record.lastUpdatedTime = Date.now();
+                window.renderAll(); window.showToast("Đã khoá bản ghi."); if(window.saveToCloud) await window.saveToCloud(record); 
+            }
         };
         
         window.unlockRecord = async function(id) {
-            if(window.userRole !== 'admin') return;
+            if(window.userRole === 'viewer') return;
             const record = window.samplesData.find(s => s.id === id);
-            if (record) { record.locked = false; window.renderAll(); window.showToast("Đã mở khoá bản ghi."); if(window.saveToCloud) await window.saveToCloud(record); }
+            if (record) { 
+                record.locked = false; 
+                record.lastUpdatedBy = window.userDisplayName;
+                record.lastUpdatedTime = Date.now();
+                window.renderAll(); window.showToast("Đã mở khoá bản ghi."); if(window.saveToCloud) await window.saveToCloud(record); 
+            }
         };
 
         window.exportDataManual = function() {
             if (window.samplesData.length === 0) { window.showToast("Không có dữ liệu để xuất", "error"); return; }
             
-            // Format định dạng ngày: Stability_DDMMYY.json
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -1094,19 +1162,21 @@
         window.exportToExcel = function() {
             if(window.samplesData.length === 0) { window.showToast("Không có dữ liệu để xuất Excel", "error"); return; }
             try {
-                let ws_data = [["No", "Product Name", "Owner/PIC", "Lot No", "Mfg Date", "Exp Date", "Retention Date", "Change Control", "Project", "Purpose", "Condition", "Time Point", "Status", "Cancel Reason"]];
+                let ws_data = [["No", "Product Name", "Owner/PIC", "Lot No", "Mfg Date", "Exp Date", "Retention Date", "Change Control", "Project", "Purpose", "Condition", "Time Point", "Status", "Cancel Reason", "Last Updated By", "Last Updated Time"]];
                 let count = 1;
                 window.samplesData.forEach(s => {
+                    const logTime = window.formatLogTime(s.lastUpdatedTime);
+                    const logUser = s.lastUpdatedBy || '';
                     if (s.conditions && s.conditions.length > 0) {
                         s.conditions.forEach(condLabel => {
                             const ms = MILESTONES.find(m => m.label === condLabel);
                             if(ms) {
                                 const st = (s.statuses && s.statuses[ms.id]) ? s.statuses[ms.id] : 'Pending';
                                 const reason = (s.cancelReasons && s.cancelReasons[ms.id]) ? s.cancelReasons[ms.id] : '';
-                                ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', ms.group, ms.label.split(' ')[1], st, reason]);
+                                ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', ms.group, ms.label.split(' ')[1], st, reason, logUser, logTime]);
                             }
                         });
-                    } else { ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', 'N/A', 'N/A', 'N/A', '']); }
+                    } else { ws_data.push([count++, s.productName, s.ownerPic||'', s.lotNo, window.formatDisplayDate(s.nsx), window.formatDisplayDate(s.hsd), window.formatDisplayDate(s.retentionDate), s.changeControl||'', s.project||'', s.purpose||'', 'N/A', 'N/A', 'N/A', '', logUser, logTime]); }
                 });
                 const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(ws_data);
                 XLSX.utils.book_append_sheet(wb, ws, "DOD_Data"); XLSX.writeFile(wb, `DOD_Report_${Date.now()}.xlsx`);
@@ -1151,7 +1221,7 @@
 
         // View Functions
         window.switchTab = function(tabId) {
-            if (tabId === 'form' && window.userRole !== 'admin') { window.showToast("Chỉ Admin mới có quyền thêm mẫu", "error"); return; }
+            if (tabId === 'form' && window.userRole === 'viewer') { window.showToast("Chỉ tài khoản nội bộ mới có quyền thêm mẫu", "error"); return; }
             ['dashboard', 'table', 'form'].forEach(id => {
                 const el = document.getElementById(`tab-${id}`); const btn = document.getElementById(`btn-tab-${id}`);
                 if(el) { if(id === tabId) { el.classList.remove('hidden'); if(id !== 'dashboard') el.classList.add('flex'); } else { el.classList.add('hidden'); el.classList.remove('flex'); } }
@@ -1235,7 +1305,7 @@
         };
 
         window.openAddForm = function() {
-            if (window.userRole !== 'admin') return;
+            if (window.userRole === 'viewer') return;
             document.getElementById('dataForm').reset(); setVal('recordId', ''); setVal('nsx', ''); setVal('retentionDate', ''); setVal('nsx_display', ''); setVal('retentionDate_display', ''); setVal('sampleUnit', '');
             ['ST', 'AC', 'LT'].forEach(g => { setVal('group_hl_' + g, ''); setVal('group_vs_' + g, ''); if(document.getElementById('group_hl_' + g)) document.getElementById('group_hl_' + g).disabled = true; if(document.getElementById('group_vs_' + g)) document.getElementById('group_vs_' + g).disabled = true; });
             document.querySelectorAll('input[name="conditions"]').forEach(cb => cb.checked = false);
@@ -1244,7 +1314,7 @@
         };
 
         window.editRecord = function(id) {
-            if (window.userRole !== 'admin') return;
+            if (window.userRole === 'viewer') return;
             const record = window.samplesData.find(s => s.id === id); if (!record) return;
             if (record.locked) { window.showToast("Bản ghi bị khoá.", "error"); return; }
             
@@ -1413,20 +1483,30 @@
             tbody.innerHTML = '';
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
             let filtered = dataArr.filter(s => (s.productName||'').toLowerCase().includes(window.searchQuery) || (s.lotNo||'').toLowerCase().includes(window.searchQuery) || (s.project||'').toLowerCase().includes(window.searchQuery));
-            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="35" class="p-8 text-center text-gray-500">Không có dữ liệu</td></tr>`; return; }
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="36" class="p-8 text-center text-gray-500">Không có dữ liệu</td></tr>`; return; }
 
             filtered.forEach((s, index) => {
                 const getStr = (ms) => s.conditions && s.conditions.includes(ms.label) ? window.formatDisplayDate(window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit)?.toISOString()) : 'NA';
                 const st = window.getGroupStats(s, 'ST', 'ST '); const ac = window.getGroupStats(s, 'AC', 'AC '); const lt = window.getGroupStats(s, 'LT', 'LT ');
 
-                // Xử lý nút hành động theo quyền
+                // Cột Log Cập Nhật
+                const logHtml = s.lastUpdatedBy ? `<div class="text-[10px] font-bold text-amber-400 print:text-black whitespace-nowrap">${s.lastUpdatedBy}</div><div class="text-[9px] text-gray-400 print:text-black whitespace-nowrap">${window.formatLogTime(s.lastUpdatedTime)}</div>` : '<span class="text-gray-500">-</span>';
+
+                // Nút Hành Động (Action) và Quyền Xóa
                 let actionHtml = '';
-                if (window.userRole === 'admin') {
+                if (window.userRole !== 'viewer') {
+                    // Logic: Chỉ Admin HOẶC chính người tạo ra mẫu mới được quyền xóa mẫu đó
+                    const canDelete = (window.userRole === 'admin') || (window.userRole === s.createdBy);
+                    
+                    const deleteBtn = canDelete
+                        ? `<button onclick="deleteRecord('${s.id}')" class="text-rose-500 hover:text-white hover:bg-rose-600/50 p-1 rounded transition-colors" title="Xóa mẫu"><i class="fa-solid fa-trash text-[10px]"></i></button>`
+                        : `<button onclick="window.showToast('Từ chối: Bạn chỉ có thể xóa các mẫu do chính bạn tạo!', 'error')" class="text-gray-600 cursor-not-allowed p-1 rounded" title="Chỉ người tạo hoặc Admin mới được xóa"><i class="fa-solid fa-trash text-[10px]"></i></button>`;
+
                     actionHtml = s.locked 
-                        ? `<button onclick="unlockRecord('${s.id}')" class="text-amber-500 hover:text-white hover:bg-amber-600/50 p-1 rounded transition-colors"><i class="fa-solid fa-lock"></i></button>`
-                        : `<button onclick="editRecord('${s.id}')" class="text-cyan-500 hover:text-white hover:bg-cyan-600/50 p-1 rounded transition-colors"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                           <button onclick="deleteRecord('${s.id}')" class="text-rose-500 hover:text-white hover:bg-rose-600/50 p-1 rounded transition-colors"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                           <button onclick="lockRecord('${s.id}')" class="text-gray-400 hover:text-white hover:bg-gray-600/50 p-1 rounded transition-colors"><i class="fa-solid fa-unlock text-[10px]"></i></button>`;
+                        ? `<button onclick="unlockRecord('${s.id}')" class="text-amber-500 hover:text-white hover:bg-amber-600/50 p-1 rounded transition-colors" title="Mở khóa"><i class="fa-solid fa-lock"></i></button>`
+                        : `<button onclick="editRecord('${s.id}')" class="text-cyan-500 hover:text-white hover:bg-cyan-600/50 p-1 rounded transition-colors" title="Sửa"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                           ${deleteBtn}
+                           <button onclick="lockRecord('${s.id}')" class="text-gray-400 hover:text-white hover:bg-gray-600/50 p-1 rounded transition-colors" title="Khóa"><i class="fa-solid fa-unlock text-[10px]"></i></button>`;
                 } else {
                     actionHtml = `<span class="text-[9px] text-gray-500 font-bold bg-gray-800/50 px-2 py-0.5 rounded border border-gray-600/30">READ</span>`;
                 }
@@ -1454,6 +1534,8 @@
                         
                         <td class="col-lt-collapsed ${lt.nextClass}">${lt.next}</td><td class="col-lt-collapsed font-bold text-cyan-400 text-[10px] tracking-tight print:text-black">${lt.progress}</td>
                         ${MILESTONES.filter(m => m.group === 'LT').map(m => `<td class="col-lt-expanded ${m.value==12||m.value==24?'font-bold text-cyan-400 print:text-black':''} print:text-black">${getStr(m)}</td>`).join('')}
+                        
+                        <td>${logHtml}</td>
                         
                         <td class="flex items-center justify-center gap-0.5 border-none bg-transparent print:hidden">
                             ${actionHtml}
