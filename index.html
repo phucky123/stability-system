@@ -1393,7 +1393,8 @@
         };
 
         window.getGroupStats = function(sample, groupKey, prefix) {
-            if (!sample.retentionDate || !sample.conditions) return { next: 'N/A', progress: '-/-', nextClass: 'text-gray-500/50' };
+            // Tối ưu an toàn dữ liệu: Kiểm tra mảng hợp lệ
+            if (!sample.retentionDate || !Array.isArray(sample.conditions)) return { next: 'N/A', progress: '-/-', nextClass: 'text-gray-500/50' };
             const today = new Date(); today.setHours(0, 0, 0, 0); const threshold = new Date(today); threshold.setDate(threshold.getDate() - 2);
             const groupMilestones = MILESTONES.filter(m => m.group === groupKey); const active = groupMilestones.filter(item => sample.conditions.includes(item.label));
             if (active.length === 0) return { next: 'N/A', progress: '-/-', nextClass: 'text-gray-500/50' };
@@ -1401,7 +1402,11 @@
             let passed = 0, nextMs = null;
             active.forEach(item => {
                 let msDate = window.calculateFutureDateObj(sample.retentionDate, item.value, item.unit);
-                if (msDate) { msDate.setHours(0, 0, 0, 0); if (msDate <= today) passed++; if (!nextMs && msDate >= threshold) nextMs = { date: msDate, label: item.label }; }
+                if (msDate && !isNaN(msDate.getTime())) { 
+                    msDate.setHours(0, 0, 0, 0); 
+                    if (msDate <= today) passed++; 
+                    if (!nextMs && msDate >= threshold) nextMs = { date: msDate, label: item.label }; 
+                }
             });
 
             let next = "Đã xong", nextClass = "text-emerald-500 font-bold text-[9px]";
@@ -1413,7 +1418,7 @@
             return { next, progress: `${passed}/${active.length}`, nextClass };
         };
 
-        // Core Renders
+        // Core Renders (Tối ưu hóa String Buffer & Chống crash)
         window.renderAll = function() { 
             try { window.renderCalendar(); window.renderDashboardList(); window.renderTable(); window.renderWarningModules(); } catch(e) { console.error("Render Error:", e); }
         };
@@ -1424,7 +1429,8 @@
             if(document.getElementById('list-month-title')) document.getElementById('list-month-title').innerText = title;
             const grid = document.getElementById('calendar-grid'); if(!grid) return;
             
-            grid.innerHTML = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(d => `<div class="calendar-cell header ${d==='T7'||d==='CN'?'text-rose-400':''}">${d}</div>`).join('');
+            // Sử dụng bộ đệm chuỗi (String Buffer) để ngăn trình duyệt giật lag
+            let gridHtml = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(d => `<div class="calendar-cell header ${d==='T7'||d==='CN'?'text-rose-400':''}">${d}</div>`).join('');
             const daysInMonth = new Date(window.calYear, window.calMonth + 1, 0).getDate();
             let startDay = new Date(window.calYear, window.calMonth, 1).getDay() - 1; if (startDay === -1) startDay = 6; 
 
@@ -1432,11 +1438,12 @@
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
 
             dataArr.forEach(s => {
-                if (!s.retentionDate || !s.conditions) return;
+                // Tối ưu an toàn
+                if (!s.retentionDate || !Array.isArray(s.conditions)) return;
                 MILESTONES.forEach(ms => {
                     if (s.conditions.includes(ms.label)) {
                         const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
-                        if (d && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) {
+                        if (d && !isNaN(d.getTime()) && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) {
                             const day = d.getDate();
                             if (!events[day]) events[day] = { st: 0, ac: 0, lt: 0 };
                             events[day][ms.group.toLowerCase()]++; stats.total++;
@@ -1453,7 +1460,7 @@
             let pDone = stats.total === 0 ? 0 : Math.round((stats.done / stats.total) * 100);
             if(document.getElementById('stat-chart')) document.getElementById('stat-chart').style.background = stats.total === 0 ? 'rgba(255,255,255,0.05)' : `conic-gradient(#10b981 0% ${pDone}%, #f43f5e ${pDone}% 100%)`;
 
-            for (let i = 0; i < startDay; i++) grid.innerHTML += `<div class="calendar-cell empty"></div>`;
+            for (let i = 0; i < startDay; i++) gridHtml += `<div class="calendar-cell empty"></div>`;
             const today = new Date();
             for (let day = 1; day <= daysInMonth; day++) {
                 const isToday = day === today.getDate() && window.calMonth === today.getMonth() && window.calYear === today.getFullYear();
@@ -1463,38 +1470,49 @@
                     if (events[day].ac) evHtml += `<div class="calendar-event event-ac-group">${events[day].ac} mẫu AC</div>`;
                     if (events[day].lt) evHtml += `<div class="calendar-event event-lt-group">${events[day].lt} mẫu LT</div>`;
                 }
-                grid.innerHTML += `<div class="calendar-cell ${isToday ? 'today' : ''} flex flex-col"><span class="text-[10px] font-bold mb-0.5 ${isToday ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]' : 'text-gray-400'} z-10 relative">${day}</span><div class="flex-1 flex flex-col gap-1 overflow-y-auto max-h-[60px] z-10 relative">${evHtml}</div></div>`;
+                gridHtml += `<div class="calendar-cell ${isToday ? 'today' : ''} flex flex-col"><span class="text-[10px] font-bold mb-0.5 ${isToday ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]' : 'text-gray-400'} z-10 relative">${day}</span><div class="flex-1 flex flex-col gap-1 overflow-y-auto max-h-[60px] z-10 relative">${evHtml}</div></div>`;
             }
             const remaining = (7 - ((startDay + daysInMonth) % 7)) % 7;
-            for (let i = 0; i < remaining; i++) grid.innerHTML += `<div class="calendar-cell empty"></div>`;
+            for (let i = 0; i < remaining; i++) gridHtml += `<div class="calendar-cell empty"></div>`;
+            
+            // Vẽ 1 lần duy nhất siêu mượt
+            grid.innerHTML = gridHtml;
         };
 
         window.renderDashboardList = function() {
             const tbody = document.getElementById('dashboardListTbody'); if(!tbody) return;
-            tbody.innerHTML = ''; let list = [];
+            let list = []; let htmlStr = '';
 
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
+            const searchStr = window.searchQuery || '';
+
             dataArr.forEach(s => {
-                if ((s.productName||'').toLowerCase().includes(window.searchQuery) || (s.lotNo||'').toLowerCase().includes(window.searchQuery)) {
-                    if (!s.retentionDate || !s.conditions) return;
+                if (String(s.productName||'').toLowerCase().includes(searchStr) || String(s.lotNo||'').toLowerCase().includes(searchStr)) {
+                    if (!s.retentionDate || !Array.isArray(s.conditions)) return;
                     MILESTONES.forEach(ms => {
                         if (s.conditions.includes(ms.label)) {
                             const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
-                            if (d && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { list.push({ s, ms, d, cond: ms.label }); }
+                            if (d && !isNaN(d.getTime()) && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { 
+                                list.push({ s, ms, d, cond: ms.label }); 
+                            }
                         }
                     });
                 }
             });
 
-            if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500"><i class="fa-regular fa-face-smile text-3xl mb-2 text-gray-600"></i><br>Không có mẫu nào cần lấy trong tháng này.</td></tr>`; return; }
+            if (list.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500"><i class="fa-regular fa-face-smile text-3xl mb-2 text-gray-600"></i><br>Không có mẫu nào cần lấy trong tháng này.</td></tr>`; 
+                return; 
+            }
 
             const disableSelect = window.userRole === 'viewer' ? 'disabled' : '';
 
+            // Tối ưu hóa: Nạp vào chuỗi htmlStr thay vì thay đổi DOM liên tục
             list.forEach((item, i) => {
                 const status = (item.s.statuses && item.s.statuses[item.ms.id]) || 'Pending';
                 const hlQty = (item.s.quantities && item.s.quantities[item.cond]) ? item.s.quantities[item.cond].HL || '-' : '-';
                 const vsQty = (item.s.quantities && item.s.quantities[item.cond]) ? item.s.quantities[item.cond].VS || '-' : '-';
-                tbody.innerHTML += `<tr>
+                htmlStr += `<tr>
                     <td class="font-bold text-gray-500">${i + 1}</td>
                     <td class="font-bold text-gray-200 uppercase tracking-tight text-left print:text-black">${item.s.productName}</td>
                     <td class="text-gray-400 font-medium print:text-black">${item.s.ownerPic || ''}</td>
@@ -1504,35 +1522,40 @@
                     <td class="font-bold text-amber-300 text-[11px] print:text-black">${vsQty}</td>
                     <td>
                         <select onchange="updateStatus('${item.s.id}', '${item.ms.id}', this)" ${disableSelect} class="status-select text-[11px] font-bold rounded px-1.5 py-1 border cursor-pointer outline-none w-full transition-colors ${window.getStatusColorClass(status)} print:p-0 print:text-[10px] print:border-none print:appearance-none print:bg-transparent">
-                            <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
-                            <option value="Done" ${status === 'Done' ? 'selected' : ''}>Done</option>
-                            <option value="Cancel" ${status === 'Cancel' ? 'selected' : ''}>Cancel</option>
+                            <option value="Pending" class="bg-slate-800 text-white" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Done" class="bg-slate-800 text-white" ${status === 'Done' ? 'selected' : ''}>Done</option>
+                            <option value="Cancel" class="bg-slate-800 text-white" ${status === 'Cancel' ? 'selected' : ''}>Cancel</option>
                         </select>
                     </td>
                     <td class="text-gray-400 italic max-w-[120px] text-left truncate print:whitespace-normal print:text-black" title="${item.s.purpose || ''}">${item.s.purpose || ''}</td>
                 </tr>`;
             });
+            tbody.innerHTML = htmlStr;
         };
 
         window.renderTable = function() {
             const tbody = document.getElementById('tableBody'); if(!tbody) return;
-            tbody.innerHTML = '';
+            let htmlStr = '';
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
-            let filtered = dataArr.filter(s => (s.productName||'').toLowerCase().includes(window.searchQuery) || (s.lotNo||'').toLowerCase().includes(window.searchQuery) || (s.project||'').toLowerCase().includes(window.searchQuery));
-            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="36" class="p-8 text-center text-gray-500">Không có dữ liệu</td></tr>`; return; }
+            const searchStr = window.searchQuery || '';
+            
+            let filtered = dataArr.filter(s => 
+                String(s.productName||'').toLowerCase().includes(searchStr) || 
+                String(s.lotNo||'').toLowerCase().includes(searchStr) || 
+                String(s.project||'').toLowerCase().includes(searchStr)
+            );
+            
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="36" class="p-8 text-center text-gray-500 font-bold">Không có dữ liệu</td></tr>`; return; }
 
             filtered.forEach((s, index) => {
-                const getStr = (ms) => s.conditions && s.conditions.includes(ms.label) ? window.formatDisplayDate(window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit)?.toISOString()) : 'NA';
+                const getStr = (ms) => (Array.isArray(s.conditions) && s.conditions.includes(ms.label)) ? window.formatDisplayDate(window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit)?.toISOString()) : 'NA';
                 const st = window.getGroupStats(s, 'ST', 'ST '); const ac = window.getGroupStats(s, 'AC', 'AC '); const lt = window.getGroupStats(s, 'LT', 'LT ');
 
-                // Cột Log Cập Nhật
                 const logHtml = s.lastUpdatedBy ? `<div class="text-[10px] font-bold text-amber-400 print:text-black whitespace-nowrap">${s.lastUpdatedBy}</div><div class="text-[9px] text-gray-400 print:text-black whitespace-nowrap">${window.formatLogTime(s.lastUpdatedTime)}</div>` : '<span class="text-gray-500">-</span>';
 
-                // Nút Hành Động (Action) và Quyền Xóa
                 let actionHtml = '';
                 if (window.userRole !== 'viewer') {
-                    // Logic: Chỉ Admin HOẶC chính người tạo ra mẫu mới được quyền xóa mẫu đó
-                    const canDelete = (window.userRole === 'admin') || (window.userRole === s.createdBy);
+                    const canDelete = (window.userRole === 'admin') || (s.createdBy && window.userRole === s.createdBy);
                     
                     const deleteBtn = canDelete
                         ? `<button onclick="deleteRecord('${s.id}')" class="text-rose-500 hover:text-white hover:bg-rose-600/50 p-1 rounded transition-colors" title="Xóa mẫu"><i class="fa-solid fa-trash text-[10px]"></i></button>`
@@ -1547,7 +1570,7 @@
                     actionHtml = `<span class="text-[9px] text-gray-500 font-bold bg-gray-800/50 px-2 py-0.5 rounded border border-gray-600/30">READ</span>`;
                 }
 
-                tbody.innerHTML += `
+                htmlStr += `
                     <tr class="${s.locked ? 'locked-row' : ''}">
                         <td class="text-gray-500 font-medium print:text-black">${index + 1}</td>
                         <td class="font-bold text-gray-200 text-left max-w-[120px] truncate print:whitespace-normal print:text-black" title="${s.productName}">${s.productName}</td>
@@ -1579,37 +1602,55 @@
                     </tr>
                 `;
             });
+            tbody.innerHTML = htmlStr;
         };
 
         window.renderWarningModules = function() {
             let overdue = [], upcoming = [];
-            const today = new Date(); today.setHours(0, 0, 0, 0); const next7Days = new Date(today); next7Days.setDate(today.getDate() + 7);
+            const today = new Date(); today.setHours(0, 0, 0, 0); 
+            const next7Days = new Date(today); next7Days.setDate(today.getDate() + 7);
 
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
 
             dataArr.forEach(s => {
-                if (!s.retentionDate || !s.conditions) return;
+                // Tối ưu an toàn dữ liệu, chống crash
+                if (!s.retentionDate || !Array.isArray(s.conditions)) return;
+                
                 MILESTONES.forEach(ms => {
                     if (s.conditions.includes(ms.label)) {
                         const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
                         const status = (s.statuses && s.statuses[ms.id]) ? s.statuses[ms.id] : 'Pending';
 
-                        if (d && status !== 'Done') { 
+                        // Đảm bảo d là đối tượng ngày tháng hợp lệ
+                        if (d && !isNaN(d.getTime()) && status !== 'Done') { 
                             d.setHours(0, 0, 0, 0); 
-                            if (status === 'Cancel' || d < today) overdue.push({ s, ms, d, status, reason: (s.cancelReasons && s.cancelReasons[ms.id]) ? s.cancelReasons[ms.id] : '' }); 
-                            else if (d >= today && d <= next7Days) upcoming.push({ s, ms, d }); 
+                            if (status === 'Cancel' || d.getTime() < today.getTime()) {
+                                overdue.push({ s, ms, d, status, reason: (s.cancelReasons && s.cancelReasons[ms.id]) ? s.cancelReasons[ms.id] : '' }); 
+                            }
+                            else if (d.getTime() >= today.getTime() && d.getTime() <= next7Days.getTime()) {
+                                upcoming.push({ s, ms, d }); 
+                            }
                         }
                     }
                 });
             });
 
-            overdue.sort((a, b) => a.d - b.d); upcoming.sort((a, b) => a.d - b.d);
+            overdue.sort((a, b) => a.d.getTime() - b.d.getTime()); 
+            upcoming.sort((a, b) => a.d.getTime() - b.d.getTime());
+            
             const renderWarn = (arr, id, emptyHtml, colorClass, isOverdueList = false) => {
                 const c = document.getElementById(id); if (!c) return;
-                if (arr.length === 0) c.innerHTML = emptyHtml;
-                else c.innerHTML = arr.map(item => {
+                if (arr.length === 0) { 
+                    c.innerHTML = emptyHtml; 
+                    return; 
+                }
+                
+                // Nạp bằng string buffer map.join để đạt tốc độ tức thì
+                c.innerHTML = arr.map(item => {
                     let reasonHtml = '';
-                    if (isOverdueList && item.status === 'Cancel') reasonHtml = `<div class="text-[9px] text-rose-300 dark:text-rose-300 italic mt-0.5 line-clamp-1 break-all flex items-center gap-1" title="Lý do: ${item.reason || ''}"><i class="fa-solid fa-ban text-rose-500"></i> Hủy: ${item.reason || ''}</div>`;
+                    if (isOverdueList && item.status === 'Cancel') {
+                        reasonHtml = `<div class="text-[9px] text-rose-300 dark:text-rose-300 italic mt-0.5 line-clamp-1 break-all flex items-center gap-1" title="Lý do: ${item.reason || ''}"><i class="fa-solid fa-ban text-rose-500"></i> Hủy: ${item.reason || ''}</div>`;
+                    }
                     return `<div class="${colorClass} p-1.5 rounded shadow-inner flex justify-between items-center"><div class="flex flex-col"><span class="text-[11px] font-bold text-gray-200">${item.s.productName} <span class="font-normal opacity-80">(${item.ms.label})</span></span>${reasonHtml}</div><span class="text-[10px] date-highlight px-1.5 py-0.5 rounded">${window.formatDisplayDate(item.d.toISOString())}</span></div>`;
                 }).join('');
             };
