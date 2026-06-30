@@ -1180,6 +1180,20 @@
 
                 const rawLot = String(row[map.lot]).trim();
                 if (!rawLot) continue;
+
+                // --- BẢO VỆ MẪU ĐÃ KHÓA (LOCKED RECORDS) ---
+                const existingDbRec = window.samplesData.find(s => String(s.lotNo).toLowerCase() === rawLot.toLowerCase());
+
+                if (existingDbRec && existingDbRec.locked) {
+                    if (!importedLotsMap[rawLot]) {
+                        importedLotsMap[rawLot] = {
+                            ...JSON.parse(JSON.stringify(existingDbRec)),
+                            _isSkippedLocked: true // Gắn cờ đánh dấu bị khóa để bỏ qua
+                        };
+                        recordCount++;
+                    }
+                    continue; // Dừng lại, bỏ qua hoàn toàn việc đọc và ghi đè dòng Excel này
+                }
                 
                 // --- XỬ LÝ GỘP DÒNG (AUTO-GROUPING BY LOT) ---
                 let record = importedLotsMap[rawLot];
@@ -1187,8 +1201,7 @@
                 // Lấy thông tin cơ bản
                 const nsxDate = parseExcelDate(row[map.mfg]);
                 const expDate = parseExcelDate(row[map.exp]);
-                let retDate = parseExcelDate(row[map.ret]);
-                if (!retDate) retDate = nsxDate || new Date().toISOString().split('T')[0];
+                let retDate = parseExcelDate(row[map.ret]) || ""; // ĐỂ TRỐNG NẾU KHÔNG CÓ TRONG EXCEL
 
                 if (!record) {
                     // Nếu Lô này chưa tồn tại trong chu kỳ Import hiện tại, tạo bộ khung mới
@@ -1273,34 +1286,96 @@
             // Chuyển Object về lại Array
             window.parsedExcelData = Object.values(importedLotsMap);
 
-            // Render Bảng Preview
-            let previewHtml = "";
-            let idx = 1;
-            window.parsedExcelData.forEach(record => {
-                const statusHtml = record._isExisting 
-                    ? `<span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-[9px] font-bold"><i class="fa-solid fa-code-merge"></i> Gộp/Ghi Đè</span>` 
-                    : `<span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[9px] font-bold"><i class="fa-solid fa-plus"></i> Thêm Mới</span>`;
-
-                previewHtml += `
-                <tr class="hover:bg-white/5 transition-colors border-b border-white/5">
-                    <td class="py-2">${idx++}</td>
-                    <td class="text-left font-bold text-white max-w-[150px] truncate" title="${record.productName}">${record.productName}</td>
-                    <td class="font-bold text-cyan-300">${record.lotNo}</td>
-                    <td class="text-xs text-gray-400">${window.formatDisplayDate(record.nsx) || 'N/A'}</td>
-                    <td class="text-xs text-gray-400">${window.formatDisplayDate(record.hsd) || 'N/A'}</td>
-                    <td class="font-bold text-amber-300">${window.formatDisplayDate(record.retentionDate)}</td>
-                    <td class="text-[9px] text-gray-400 max-w-[200px] truncate" title="${record.conditions.join(', ')}">${record.conditions.join(', ') || '<span class="text-rose-400 italic">Trống</span>'}</td>
-                    <td>${statusHtml}</td>
-                </tr>`;
-            });
-
-            document.getElementById('excel-preview-tbody').innerHTML = previewHtml || `<tr><td colspan="8" class="p-8 text-rose-400 italic">Không tìm thấy dữ liệu hợp lệ. Vui lòng kiểm tra lại cấu trúc file.</td></tr>`;
-            document.getElementById('excel-import-stats').innerText = `Đã phân tích và gộp thành công ${recordCount} Lô Mẫu.`;
+            // Gọi hàm Render Bảng Preview
+            window.renderExcelPreviewTable();
             
             // Hiển thị Modal
             document.getElementById('excel-preview-modal').classList.remove('hidden');
             document.getElementById('excel-preview-modal').classList.add('flex');
         }
+
+        // --- HÀM TẠO BẢNG PREVIEW EXCEL (RENDER) ---
+        window.renderExcelPreviewTable = function() {
+            let previewHtml = "";
+            let idx = 1;
+            window.parsedExcelData.forEach(record => {
+                let statusHtml = '';
+                let actionHtml = '';
+
+                if (record._isSkippedLocked) {
+                    statusHtml = `<span class="bg-gray-500/20 text-gray-400 border border-gray-500/30 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm"><i class="fa-solid fa-lock"></i> Đã Khóa</span>`;
+                    actionHtml = `<span class="text-gray-500/50 text-[10px]" title="Bị khóa"><i class="fa-solid fa-ban"></i></span>`; // Không có nút xóa sửa
+                } else {
+                    if (record._isExisting) {
+                        statusHtml = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm"><i class="fa-solid fa-code-merge"></i> Ghi Đè</span>`;
+                    } else {
+                        statusHtml = `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm"><i class="fa-solid fa-plus"></i> Thêm Mới</span>`;
+                    }
+                    actionHtml = `
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="editImportRow('${record.id}')" class="text-cyan-400 hover:text-white hover:bg-cyan-600/50 p-1 rounded transition-colors" title="Sửa nhanh"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteImportRow('${record.id}')" class="text-rose-400 hover:text-white hover:bg-rose-600/50 p-1 rounded transition-colors" title="Xóa dòng này"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                    `;
+                }
+
+                previewHtml += `
+                <tr class="hover:bg-white/5 transition-colors border-b border-white/5 ${record._isSkippedLocked ? 'opacity-50' : ''}">
+                    <td class="py-2">${idx++}</td>
+                    <td class="text-left font-bold text-white max-w-[150px] truncate" title="${record.productName}">${record.productName}</td>
+                    <td class="font-bold text-cyan-300">${record.lotNo}</td>
+                    <td class="text-xs text-gray-400">${window.formatDisplayDate(record.nsx) || '-'}</td>
+                    <td class="text-xs text-gray-400">${window.formatDisplayDate(record.hsd) || '-'}</td>
+                    <td class="font-bold text-amber-300">${window.formatDisplayDate(record.retentionDate) || '<span class="text-gray-500 font-normal italic">Trống</span>'}</td>
+                    <td class="text-[9px] text-gray-400 max-w-[200px] truncate" title="${record.conditions.join(', ')}">${record.conditions.join(', ') || '<span class="text-rose-400 italic">Trống</span>'}</td>
+                    <td>${statusHtml}</td>
+                    <td>${actionHtml}</td>
+                </tr>`;
+            });
+
+            document.getElementById('excel-preview-tbody').innerHTML = previewHtml || `<tr><td colspan="9" class="p-8 text-rose-400 italic text-center">Không có dữ liệu nạp hợp lệ.</td></tr>`;
+            document.getElementById('excel-import-stats').innerText = `Sẵn sàng nạp ${window.parsedExcelData.length} Lô Mẫu.`;
+        };
+
+        // --- HÀM XỬ LÝ SỬA / XÓA TRONG BẢNG PREVIEW EXCEL ---
+        window.deleteImportRow = function(id) {
+            window.parsedExcelData = window.parsedExcelData.filter(r => r.id !== id);
+            window.renderExcelPreviewTable();
+        };
+
+        window.editImportRow = function(id) {
+            const record = window.parsedExcelData.find(r => r.id === id);
+            if (!record) return;
+            
+            setVal('edit-import-id', id);
+            setVal('edit-import-name', record.productName || '');
+            setVal('edit-import-lot', record.lotNo || '');
+            setVal('edit-import-mfg', record.nsx || '');
+            setVal('edit-import-exp', record.hsd || '');
+            setVal('edit-import-ret', record.retentionDate || '');
+
+            document.getElementById('edit-import-modal').classList.remove('hidden');
+            document.getElementById('edit-import-modal').classList.add('flex');
+        };
+
+        window.closeEditImportModal = function() {
+            document.getElementById('edit-import-modal').classList.add('hidden');
+            document.getElementById('edit-import-modal').classList.remove('flex');
+        };
+
+        window.saveEditImportRow = function() {
+            const id = getVal('edit-import-id');
+            const record = window.parsedExcelData.find(r => r.id === id);
+            if (record) {
+                record.productName = getVal('edit-import-name').trim();
+                record.lotNo = getVal('edit-import-lot').trim();
+                record.nsx = getVal('edit-import-mfg');
+                record.hsd = getVal('edit-import-exp');
+                record.retentionDate = getVal('edit-import-ret');
+            }
+            window.renderExcelPreviewTable();
+            window.closeEditImportModal();
+        };
 
         // --- HÀM DỊCH THUẬT ĐIỀU KIỆN (AI CONDITION TRANSLATOR) ---
         // Dịch các chuẩn khác biệt (Ví dụ: "30/75-9M" -> "LT 9M")
@@ -1361,27 +1436,34 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang đồng bộ...`;
             btn.disabled = true;
 
+            const recordsToUpload = [];
+
             // Merge dữ liệu đã gộp vào Database chính
             window.parsedExcelData.forEach(newRec => {
+                if (newRec._isSkippedLocked) return; // BỎ QUA TUYỆT ĐỐI KHÔNG LƯU MẪU BỊ KHÓA
+
                 const idx = window.samplesData.findIndex(s => s.id === newRec.id);
-                // Dọn dẹp cờ _isExisting trước khi lưu
+                // Dọn dẹp cờ tạm trước khi lưu
                 delete newRec._isExisting; 
+                delete newRec._isSkippedLocked;
                 
                 if (idx !== -1) window.samplesData[idx] = newRec; // Ghi đè/Cập nhật Lô cũ
                 else window.samplesData.unshift(newRec); // Đẩy Lô mới lên đầu
+
+                recordsToUpload.push(newRec); // Đưa vào hàng chờ đẩy lên Cloud
             });
 
             // Lưu bộ nhớ cục bộ
             localStorage.setItem('dod_local_v4', JSON.stringify(window.samplesData));
             
-            // Batch push lên Firebase
-            if (window.batchUploadToCloud) {
-                await window.batchUploadToCloud(window.parsedExcelData);
+            // Batch push lên Firebase (chỉ đẩy những mẫu hợp lệ)
+            if (window.batchUploadToCloud && recordsToUpload.length > 0) {
+                await window.batchUploadToCloud(recordsToUpload);
             }
 
             window.renderAll();
             window.closeExcelPreview();
-            window.showToast(`Đã import và đồng bộ thành công ${window.parsedExcelData.length} Lô dữ liệu!`);
+            window.showToast(`Đã import và đồng bộ thành công ${recordsToUpload.length} Lô dữ liệu!`);
             
             // Mở khóa nút
             btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Xác Nhận Nạp Lên Database`;
