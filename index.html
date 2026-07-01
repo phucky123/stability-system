@@ -114,6 +114,7 @@
 
         /* LIGHT THEME OVERRIDES */
         body.light-theme { background: radial-gradient(circle at 15% 50%, #f1f5f9, #e2e8f0, #cbd5e1); color: #1e293b; }
+        body.light-theme option { background-color: #ffffff !important; color: #000000 !important; } /* CHỈ ĐỊNH CHO TẤT CẢ OPTIONS Ở LIGHT MODE */
         body.light-theme .glass-panel { background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%); border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05); color: #0f172a; }
         body.light-theme .glass-header { background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.8) 100%); border-bottom: 1px solid rgba(0, 0, 0, 0.1); box-shadow: none; }
         body.light-theme .text-white { color: #020617 !important; font-weight: 700; text-shadow: none !important;}
@@ -183,8 +184,9 @@
 
         /* MOBILE OPTIMIZATIONS */
         @media (max-width: 768px) {
-            .mobile-drawer { position: fixed !important; inset-y: 0; left: 0; transform: translateX(-100%); z-index: 50; height: 100vh; margin: 0 !important; border-radius: 0 !important; box-shadow: 10px 0 25px rgba(0,0,0,0.5); }
+            .mobile-drawer { position: fixed !important; inset-y: 0; left: 0; transform: translateX(-100%); z-index: 50; height: 100dvh; max-height: 100dvh; margin: 0 !important; border-radius: 0 !important; box-shadow: 10px 0 25px rgba(0,0,0,0.5); }
             .mobile-drawer.open { transform: translateX(0); }
+            .mobile-drawer #sidebar-content { overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 20px); }
             .touch-target { min-height: 44px; }
             .calendar-cell { min-height: 50px; }
         }
@@ -207,22 +209,20 @@
                 <p class="text-[9px] font-bold text-gray-400 mt-1.5 uppercase tracking-widest">Xác thực hệ thống</p>
             </div>
             <div class="space-y-4 text-left">
-                <button onclick="loginAs('viewer')" class="w-full glass-btn py-2.5 rounded-lg font-bold text-[11px] flex items-center justify-center gap-2 transition-all shadow-sm hover:scale-[1.02]">
-                    <i class="fa-solid fa-eye text-sm"></i> Truy cập Khách (Chỉ Xem)
-                </button>
-                <div class="border-t border-white/10 pt-4 relative mt-1">
-                    <label class="block text-left text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 pl-1">Tài khoản nội bộ</label>
+                <div class="relative mt-1">
+                    <label class="block text-left text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 pl-1">TÀI KHOẢN</label>
                     <div class="flex flex-col gap-2.5">
                         <div class="relative group">
-                            <select id="login-username" class="w-full glass-input rounded-lg px-3 py-2.5 text-xs font-bold text-cyan-300 outline-none appearance-none text-center cursor-pointer transition-all shadow-inner bg-black/40">
-                                <option value="admin" class="bg-slate-800">Quản trị viên</option>
-                                <option value="tsoffice" class="bg-slate-800">TS Office</option>
+                            <select id="login-username" onchange="togglePasswordVisibility()" class="w-full glass-input rounded-lg px-3 py-2.5 text-xs font-bold text-cyan-300 outline-none appearance-none text-center cursor-pointer transition-all shadow-inner bg-black/40">
+                                <option value="viewer" class="bg-slate-800">Viewer</option>
                                 <option value="qcoffice" class="bg-slate-800">QC Office</option>
+                                <option value="tsoffice" class="bg-slate-800">TS Office</option>
+                                <option value="admin" class="bg-slate-800">Admin</option>
                             </select>
                             <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] pointer-events-none transition-colors"></i>
                         </div>
-                        <input type="password" id="login-pass" class="w-full glass-input bg-black/40 rounded-lg px-3 py-2.5 text-xs text-center font-bold text-gray-200 outline-none transition-all shadow-inner" placeholder="Nhập mật khẩu..." onkeyup="if(event.key === 'Enter') loginAs('internal')">
-                        <button onclick="loginAs('internal')" class="relative overflow-hidden group w-full mt-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transform hover:-translate-y-0.5 transition-all duration-300 border border-orange-400/50 text-white !text-white">
+                        <input type="password" id="login-pass" class="w-full glass-input bg-black/40 rounded-lg px-3 py-2.5 text-xs text-center font-bold text-gray-200 outline-none transition-all shadow-inner hidden" placeholder="Nhập mật khẩu..." onkeyup="if(event.key === 'Enter') loginAs()">
+                        <button onclick="loginAs()" class="relative overflow-hidden group w-full mt-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transform hover:-translate-y-0.5 transition-all duration-300 border border-orange-400/50 text-white !text-white">
                             <div class="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[50%] transition-transform duration-700 ease-in-out skew-x-12 pointer-events-none"></div>
                             <i class="fa-solid fa-right-to-bracket group-hover:translate-x-1 transition-transform duration-300"></i> Đăng nhập
                         </button>
@@ -313,6 +313,48 @@
         </div>
     </div>
 
+    <!-- EDIT IMPORT ROW MODAL -->
+    <div id="edit-import-modal" class="fixed inset-0 z-[2600] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel p-6 rounded-2xl w-full max-w-md flex flex-col gap-4 shadow-2xl border border-cyan-500/30">
+            <div class="flex items-center gap-2 border-b border-white/10 pb-3 mb-2">
+                <i class="fa-solid fa-pen-to-square text-cyan-400 text-lg"></i>
+                <h3 class="text-cyan-400 font-bold text-sm uppercase tracking-wider">Chỉnh Sửa Nhanh</h3>
+            </div>
+            
+            <input type="hidden" id="edit-import-id">
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tên Sản Phẩm (Product Name)</label>
+                    <input type="text" id="edit-import-name" class="glass-input w-full rounded-md px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Số Lô (Lot No.)</label>
+                    <input type="text" id="edit-import-lot" class="glass-input w-full rounded-md px-3 py-2 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Ngày SX (Mfg Date)</label>
+                        <input type="date" id="edit-import-mfg" class="glass-input w-full rounded-md px-3 py-2 text-sm text-gray-300">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Hạn Dùng (Exp Date)</label>
+                        <input type="date" id="edit-import-exp" class="glass-input w-full rounded-md px-3 py-2 text-sm text-gray-300">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Ngày Nạp Mẫu (Retention Date)</label>
+                    <input type="date" id="edit-import-ret" class="glass-input w-full rounded-md px-3 py-2 text-sm text-gray-300">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-white/10">
+                <button onclick="closeEditImportModal()" class="glass-btn px-5 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-colors uppercase">Hủy Bỏ</button>
+                <button onclick="saveEditImportRow()" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-[0_0_10px_rgba(6,182,212,0.4)] uppercase flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Cập Nhật</button>
+            </div>
+        </div>
+    </div>
+
     <!-- KHU VỰC IN ẨN -->
     <div id="print-section">
         <div class="print-header">
@@ -376,7 +418,7 @@
                 </button>
             </div>
             
-            <div class="p-3 border-t border-white/10 flex flex-col gap-2 shrink-0 transition-all bg-black/20">
+            <div class="p-3 border-t border-white/10 flex flex-col gap-2 shrink-0 transition-all bg-black/20 pb-6 md:pb-3">
                 
                 <div class="w-full flex flex-col gap-1 bg-black/40 rounded-lg border border-white/10 shadow-inner mb-1 p-2 nav-text">
                     <div class="flex items-center justify-between cursor-help" title="Trạng thái kết nối máy chủ Firebase Cloud">
@@ -536,14 +578,31 @@
             <div id="tab-table" class="h-full hidden flex-col w-full mx-auto">
                 <div class="glass-panel rounded-2xl h-full flex flex-col overflow-hidden border-t-cyan-500/50 border-t-2">
                     
-                    <div class="p-3 bg-black/40 border-b border-white/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0 shadow-md">
-                        <div class="relative w-full sm:max-w-xs">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Tìm kiếm nhanh tên, số lô..." class="w-full glass-input rounded-full py-2.5 sm:py-2 pl-9 pr-3 text-sm md:text-[11px] transition-all touch-target font-bold">
+                    <div class="p-3 bg-black/40 border-b border-white/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shrink-0 shadow-md">
+                        
+                        <!-- Search & Sort -->
+                        <div class="flex w-full md:w-auto gap-2">
+                            <div class="relative flex-1 md:w-64">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Tìm kiếm nhanh tên, số lô..." class="w-full glass-input rounded-full py-2.5 sm:py-2 pl-9 pr-3 text-sm md:text-[11px] transition-all touch-target font-bold">
+                            </div>
+                            <div class="relative shrink-0">
+                                <i class="fa-solid fa-arrow-down-a-z absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <select id="sortSelect" onchange="filterData()" class="glass-input rounded-full py-2.5 sm:py-2 pl-8 pr-6 text-sm md:text-[11px] font-bold transition-all touch-target cursor-pointer outline-none appearance-none">
+                                    <option value="default" class="bg-slate-800 text-white">Sắp xếp: Mặc định</option>
+                                    <option value="name_asc" class="bg-slate-800 text-white">Tên A-Z</option>
+                                    <option value="name_desc" class="bg-slate-800 text-white">Tên Z-A</option>
+                                    <option value="lot_asc" class="bg-slate-800 text-white">Số Lô A-Z</option>
+                                    <option value="retention_desc" class="bg-slate-800 text-white">Ngày Nạp (Mới nhất)</option>
+                                    <option value="mfg_desc" class="bg-slate-800 text-white">Ngày SX (Mới nhất)</option>
+                                    <option value="updated_desc" class="bg-slate-800 text-white">Cập nhật gần đây</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] pointer-events-none"></i>
+                            </div>
                         </div>
                         
                         <!-- Cụm nút thao tác (Export / Import / Sync Indicator) -->
-                        <div class="flex items-center justify-end gap-2 w-full sm:w-auto overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
+                        <div class="flex items-center justify-end gap-2 w-full md:w-auto overflow-x-auto custom-scrollbar pb-1 md:pb-0">
                             
                             <!-- Thông báo đã đồng bộ - Đưa vào ngang hàng -->
                             <div id="auto-save-indicator" class="hidden items-center gap-1.5 bg-emerald-600 border border-emerald-400/50 px-4 py-2.5 sm:py-2 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.4)] font-extrabold text-sm md:text-[11px] uppercase tracking-wider transition-all whitespace-nowrap shrink-0" style="color: #ffffff !important;">
@@ -887,7 +946,7 @@
     <script>
         // ---- Global State & Auth ----
         window.samplesData = [];
-        window.searchQuery = "";
+        window.dbSearchQuery = "";
         window.isLightMode = localStorage.getItem('dod_theme_pref') === 'light';
         window.userRole = null; // 'admin', 'tsoffice', 'qcoffice', or 'viewer'
         window.userDisplayName = "Khách";
@@ -981,24 +1040,35 @@
         };
 
         // ================= XÁC THỰC (AUTH) =================
-        window.loginAs = function(role) {
-            let roleToSet = role;
-            let roleDisplayName = "";
-
-            if (role === 'internal') {
-                const user = document.getElementById('login-username').value;
-                const pass = document.getElementById('login-pass').value;
-
-                if (user === 'admin' && pass === 'N@ng123456') { roleToSet = 'admin'; roleDisplayName = "Admin"; }
-                else if (user === 'tsoffice' && pass === '12345678') { roleToSet = 'tsoffice'; roleDisplayName = "TS Office"; }
-                else if (user === 'qcoffice' && pass === '12345678') { roleToSet = 'qcoffice'; roleDisplayName = "QC Office"; }
-                else {
-                    window.showToast("Mật khẩu tài khoản không chính xác!", "error");
-                    return;
-                }
+        window.togglePasswordVisibility = function() {
+            const user = document.getElementById('login-username').value;
+            const passInput = document.getElementById('login-pass');
+            if (user === 'viewer') {
+                passInput.classList.add('hidden');
             } else {
-                roleToSet = 'viewer';
-                roleDisplayName = "Khách (Chỉ xem)";
+                passInput.classList.remove('hidden');
+                passInput.focus();
+            }
+        };
+
+        window.loginAs = function() {
+            const user = document.getElementById('login-username').value;
+            const pass = document.getElementById('login-pass').value;
+            let roleToSet = '';
+            let roleDisplayName = '';
+
+            if (user === 'viewer') {
+                roleToSet = 'viewer'; 
+                roleDisplayName = "Viewer";
+            } else if (user === 'admin' && pass === 'N@ng123456') { 
+                roleToSet = 'admin'; roleDisplayName = "Admin"; 
+            } else if (user === 'tsoffice' && pass === '12345678') { 
+                roleToSet = 'tsoffice'; roleDisplayName = "TS Office"; 
+            } else if (user === 'qcoffice' && pass === '12345678') { 
+                roleToSet = 'qcoffice'; roleDisplayName = "QC Office"; 
+            } else {
+                window.showToast("Mật khẩu tài khoản không chính xác!", "error");
+                return;
             }
 
             window.userRole = roleToSet;
@@ -1055,6 +1125,8 @@
             window.userRole = null;
             window.userDisplayName = "Khách";
             document.getElementById('login-pass').value = '';
+            document.getElementById('login-username').value = 'viewer';
+            window.togglePasswordVisibility();
             document.getElementById('auth-modal').classList.remove('hidden');
             document.getElementById('auth-modal').classList.add('flex');
             window.switchTab('dashboard');
@@ -1730,15 +1802,13 @@
             let list = []; const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
 
             dataArr.forEach(s => {
-                if ((s.productName||'').toLowerCase().includes(window.searchQuery) || (s.lotNo||'').toLowerCase().includes(window.searchQuery)) {
-                    if (!s.retentionDate || !s.conditions) return;
-                    MILESTONES.forEach(ms => {
-                        if (s.conditions.includes(ms.label)) {
-                            const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
-                            if (d && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { list.push({ s, ms, d, cond: ms.label }); }
-                        }
-                    });
-                }
+                if (!s.retentionDate || !s.conditions) return;
+                MILESTONES.forEach(ms => {
+                    if (s.conditions.includes(ms.label)) {
+                        const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
+                        if (d && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { list.push({ s, ms, d, cond: ms.label }); }
+                    }
+                });
             });
             list.sort((a, b) => a.d - b.d);
             if (list.length === 0) { printTbody.innerHTML = `<tr><td colspan="9">Không có mẫu nào cần lấy trong tháng này.</td></tr>`; } 
@@ -1818,7 +1888,11 @@
             window.renderAll(); 
         };
 
-        window.filterData = function() { window.searchQuery = (document.getElementById('searchInput')?.value || '').toLowerCase(); window.renderDashboardList(); window.renderTable(); };
+        // Hàm lọc và sắp xếp dữ liệu (Chỉ áp dụng cho bảng Database)
+        window.filterData = function() { 
+            window.dbSearchQuery = (document.getElementById('searchInput')?.value || '').toLowerCase(); 
+            window.renderTable(); 
+        };
 
         window.handleManualDateInput = function(hiddenId, displayId) { const val = parseManualDate(getVal(displayId)); if (val) { setVal(hiddenId, val); if (hiddenId === 'nsx') window.calculateExpDate(); } };
         window.updateDateDisplay = function(dateInputId, displayInputId) {
@@ -1972,20 +2046,17 @@
             let list = []; let htmlStr = '';
 
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
-            const searchStr = window.searchQuery || '';
 
             dataArr.forEach(s => {
-                if (String(s.productName||'').toLowerCase().includes(searchStr) || String(s.lotNo||'').toLowerCase().includes(searchStr)) {
-                    if (!s.retentionDate || !Array.isArray(s.conditions)) return;
-                    MILESTONES.forEach(ms => {
-                        if (s.conditions.includes(ms.label)) {
-                            const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
-                            if (d && !isNaN(d.getTime()) && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { 
-                                list.push({ s, ms, d, cond: ms.label }); 
-                            }
+                if (!s.retentionDate || !Array.isArray(s.conditions)) return;
+                MILESTONES.forEach(ms => {
+                    if (s.conditions.includes(ms.label)) {
+                        const d = window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit);
+                        if (d && !isNaN(d.getTime()) && d.getMonth() === window.calMonth && d.getFullYear() === window.calYear) { 
+                            list.push({ s, ms, d, cond: ms.label }); 
                         }
-                    });
-                }
+                    }
+                });
             });
 
             if (list.length === 0) { 
@@ -2024,7 +2095,7 @@
             const tbody = document.getElementById('tableBody'); if(!tbody) return;
             let htmlStr = '';
             const dataArr = Array.isArray(window.samplesData) ? window.samplesData : [];
-            const searchStr = window.searchQuery || '';
+            const searchStr = window.dbSearchQuery || '';
             const sortMode = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : 'default';
             
             // 1. Lọc dữ liệu theo Search Input
@@ -2034,27 +2105,20 @@
                 String(s.project||'').toLowerCase().includes(searchStr)
             );
             
-            // 2. Sắp xếp dữ liệu theo lựa chọn (Filter Dropdown)
+            // 2. Sắp xếp dữ liệu theo lựa chọn
             filtered.sort((a, b) => {
                 switch(sortMode) {
-                    case 'name_asc': 
-                        return String(a.productName||'').localeCompare(String(b.productName||''));
-                    case 'name_desc': 
-                        return String(b.productName||'').localeCompare(String(a.productName||''));
-                    case 'lot_asc': 
-                        return String(a.lotNo||'').localeCompare(String(b.lotNo||''));
-                    case 'retention_desc': 
-                        return new Date(b.retentionDate||0).getTime() - new Date(a.retentionDate||0).getTime();
-                    case 'mfg_desc': 
-                        return new Date(b.nsx||0).getTime() - new Date(a.nsx||0).getTime();
-                    case 'updated_desc': 
-                        return (b.lastUpdatedTime||0) - (a.lastUpdatedTime||0);
-                    default: // 'default'
-                        return (b.createdAt||0) - (a.createdAt||0); // Mới nhất xếp trên
+                    case 'name_asc': return String(a.productName||'').localeCompare(String(b.productName||''));
+                    case 'name_desc': return String(b.productName||'').localeCompare(String(a.productName||''));
+                    case 'lot_asc': return String(a.lotNo||'').localeCompare(String(b.lotNo||''));
+                    case 'retention_desc': return new Date(b.retentionDate||0).getTime() - new Date(a.retentionDate||0).getTime();
+                    case 'mfg_desc': return new Date(b.nsx||0).getTime() - new Date(a.nsx||0).getTime();
+                    case 'updated_desc': return (b.lastUpdatedTime||0) - (a.lastUpdatedTime||0);
+                    default: return (b.createdAt||0) - (a.createdAt||0); // Mới nhất xếp trên
                 }
             });
             
-            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="36" class="p-8 text-center text-gray-500 font-bold">Không có dữ liệu</td></tr>`; return; }
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="36" class="p-8 text-center text-gray-500 font-bold">Không có dữ liệu phù hợp với bộ lọc</td></tr>`; return; }
 
             filtered.forEach((s, index) => {
                 const getStr = (ms) => (Array.isArray(s.conditions) && s.conditions.includes(ms.label)) ? window.formatDisplayDate(window.calculateFutureDateObj(s.retentionDate, ms.value, ms.unit)?.toISOString()) : 'NA';
