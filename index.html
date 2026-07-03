@@ -371,7 +371,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Ngày Nạp Mẫu (Retention Date)</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Ngày Lưu Mẫu (Retention Date)</label>
                     <input type="date" id="edit-import-ret" class="glass-input w-full rounded-md px-3 py-2 text-sm text-gray-300">
                 </div>
             </div>
@@ -634,7 +634,7 @@
                                     <option value="name_asc" class="bg-slate-800 text-white">Tên A-Z</option>
                                     <option value="name_desc" class="bg-slate-800 text-white">Tên Z-A</option>
                                     <option value="lot_asc" class="bg-slate-800 text-white">Số Lô A-Z</option>
-                                    <option value="retention_desc" class="bg-slate-800 text-white">Ngày Nạp (Mới nhất)</option>
+                                    <option value="retention_desc" class="bg-slate-800 text-white">Ngày Lưu Mẫu (Mới nhất)</option>
                                     <option value="mfg_desc" class="bg-slate-800 text-white">Ngày SX (Mới nhất)</option>
                                     <option value="updated_desc" class="bg-slate-800 text-white">Cập nhật gần đây</option>
                                 </select>
@@ -1066,7 +1066,7 @@
                             <span class="text-gray-300 font-bold">${window.formatDisplayDate(s.nsx)} <span class="text-gray-500 mx-1">/</span> ${window.formatDisplayDate(s.hsd)}</span>
                         </div>
                         <div class="flex justify-between border-b border-white/10 pb-1">
-                            <span class="text-gray-400 font-bold uppercase">Ngày Nạp Mẫu</span>
+                            <span class="text-gray-400 font-bold uppercase">Ngày Lưu Mẫu</span>
                             <span class="text-amber-300 font-bold">${window.formatDisplayDate(s.retentionDate)}</span>
                         </div>
                         <div class="flex flex-col gap-1 border-b border-white/10 pb-2">
@@ -1359,7 +1359,7 @@
                 lot: headers.findIndex(h => h.includes('lot') || h.includes('số lô') || h.includes('lô')),
                 mfg: headers.findIndex(h => h.includes('mfg') || h.includes('ngày sx') || h.includes('sản xuất')),
                 exp: headers.findIndex(h => h.includes('exp') || h.includes('hạn dùng') || h.includes('shelf')),
-                ret: headers.findIndex(h => h.includes('retention') || h.includes('ngày lưu') || h.includes('s. date') || h.includes('nạp mẫu')),
+                ret: headers.findIndex(h => h.includes('retention') || h.includes('ngày lưu') || h.includes('s. date') || h.includes('lưu mẫu')),
                 cc: headers.findIndex(h => h.includes('change control')),
                 proj: headers.findIndex(h => h.includes('project') || h.includes('dự án')),
                 purp: headers.findIndex(h => h.includes('purpose') || h.includes('ghi chú')),
