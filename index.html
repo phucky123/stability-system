@@ -19,6 +19,12 @@
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         
+        /* CỠ SCROLLBAR TO DÀNH RIÊNG CHO BẢNG DATABASE */
+        .large-scrollbar::-webkit-scrollbar { height: 14px; width: 14px; }
+        .large-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.25); border-radius: 6px; box-shadow: inset 0 0 5px rgba(0,0,0,0.3); }
+        .large-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.35); border-radius: 6px; border: 2px solid rgba(0,0,0,0.2); background-clip: padding-box; }
+        .large-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.6); }
+
         /* HIỆU ỨNG VISTA GLASS CHỦ ĐẠO */
         body { background: radial-gradient(circle at 15% 50%, #1e293b, #0f172a, #020617); background-attachment: fixed; color: #e2e8f0; }
         .glass-panel { background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); border-top: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); }
@@ -161,6 +167,9 @@
         body.light-theme .empty-warning-amber { color: #d97706; -webkit-text-stroke: 0.3px #000; text-shadow: 1px 1px 0px rgba(0,0,0,0.2); }
         body.light-theme .form-panel { background: #ffffff !important; border-top: 4px solid #0284c7 !important; }
         body.light-theme .form-section-title { color: #b45309 !important; border-bottom-color: #fde68a !important; }
+        body.light-theme .large-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); box-shadow: inset 0 0 5px rgba(0,0,0,0.1); }
+        body.light-theme .large-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.25); border: 2px solid rgba(255,255,255,0.8); }
+        body.light-theme .large-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(2, 132, 199, 0.5); }
 
         /* HỖ TRỢ CHẠM (TOUCH LONG PRESS) */
         .mobile-pressable { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
@@ -441,6 +450,9 @@
                 <button onclick="switchTab('table'); closeMobileMenu();" id="btn-tab-table" class="sidebar-btn w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target">
                     <i class="fa-solid fa-database w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Database</span>
                 </button>
+                <button onclick="switchTab('results'); closeMobileMenu();" id="btn-tab-results" class="sidebar-btn w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target">
+                    <i class="fa-solid fa-chart-line w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i> <span class="nav-text whitespace-nowrap overflow-hidden">Results</span>
+                </button>
                 <button onclick="openAddForm(); closeMobileMenu();" id="btn-tab-form" class="sidebar-btn w-full text-left px-4 py-3 md:py-2.5 flex items-center gap-3 text-[13px] md:text-[11px] text-gray-300 touch-target hidden-for-viewer">
                     <i class="fa-solid fa-plus w-5 md:w-4 text-center text-base md:text-sm shrink-0"></i><span class="nav-text whitespace-nowrap overflow-hidden">Thêm Mẫu</span>
                 </button>
@@ -616,12 +628,13 @@
                 </div>
             </div>
 
-            <!-- ================= TAB 2: QUẢN LÝ TỔNG ================= -->
-            <div id="tab-table" class="h-full hidden flex-col w-full mx-auto">
-                <div class="glass-panel rounded-2xl h-full flex flex-col overflow-hidden border-t-cyan-500/50 border-t-2">
+            <!-- ================= TAB 2: QUẢN LÝ TỔNG & KẾT QUẢ ================= -->
+            <div id="tab-table" class="min-h-full hidden flex-col w-full mx-auto gap-4 pb-4 overflow-y-auto custom-scrollbar pr-1">
+                
+                <!-- BẢNG DATABASE -->
+                <div class="glass-panel rounded-2xl flex-none min-h-[500px] h-[65vh] md:h-auto md:flex-1 flex flex-col overflow-hidden border-t-cyan-500/50 border-t-2 shrink-0">
                     
                     <div class="p-3 bg-black/40 border-b border-white/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shrink-0 shadow-md">
-                        
                         <div class="flex w-full md:w-auto gap-2">
                             <div class="relative flex-1 md:w-64">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
@@ -643,7 +656,6 @@
                         </div>
                         
                         <div class="flex items-center justify-end gap-2 w-full md:w-auto overflow-x-auto custom-scrollbar pb-1 md:pb-0">
-                            
                             <div id="auto-save-indicator" class="hidden items-center gap-1.5 bg-emerald-600 border border-emerald-400/50 px-4 py-2.5 sm:py-2 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.4)] font-extrabold text-sm md:text-[11px] uppercase tracking-wider transition-all whitespace-nowrap shrink-0" style="color: #ffffff !important;">
                                 <i class="fa-solid fa-cloud-arrow-up animate-bounce"></i> Đã đồng bộ
                             </div>
@@ -662,7 +674,8 @@
                     <!-- Helper Text cho Mobile -->
                     <p class="md:hidden text-[9px] text-amber-400 italic mt-2 mb-1 px-3 w-full text-center"><i class="fa-solid fa-hand-pointer animate-pulse"></i> Chạm & Giữ 1s vào dòng dữ liệu bên dưới để xem chi tiết ẩn.</p>
 
-                    <div class="table-container w-full flex-1 p-0 mt-1 md:mt-0">
+                    <!-- LƯU Ý: THÊM class "large-scrollbar" vào đây -->
+                    <div class="table-container w-full flex-1 p-0 mt-1 md:mt-0 large-scrollbar">
                         <table class="data-table collapsed-st collapsed-ac collapsed-lt" id="main-data-table">
                             <thead id="tableHead">
                                 <tr>
@@ -711,6 +724,27 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+            </div>
+
+            <!-- ================= TAB 4: RESULTS ================= -->
+            <div id="tab-results" class="h-full hidden flex-col w-full mx-auto print:hidden">
+                <div class="glass-panel rounded-2xl h-full flex flex-col items-center justify-center border-t-orange-500/50 border-t-2 relative overflow-hidden p-6 text-center shadow-2xl">
+                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-900/20 via-transparent to-transparent pointer-events-none"></div>
+
+                    <div class="relative inline-block mb-6 animate-pulse">
+                        <i class="fa-solid fa-gear fa-spin text-3xl text-cyan-400 absolute -top-4 -right-4 drop-shadow-md"></i>
+                        <i class="fa-solid fa-chart-line text-7xl text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]"></i>
+                    </div>
+                    
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-white uppercase tracking-widest mb-3 drop-shadow-md">Results</h2>
+                    <div class="h-1 w-20 bg-gradient-to-r from-orange-500 to-amber-500 mx-auto mb-5 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>
+                    
+                    <p class="text-gray-300 text-sm md:text-base max-w-md leading-relaxed">
+                        Dữ liệu phân tích đang được tổng hợp và cập nhật.<br>
+                        <span class="font-bold text-orange-400 mt-2 block">Vui lòng quay lại sau!</span>
+                    </p>
                 </div>
             </div>
 
@@ -1679,7 +1713,7 @@
         // View Functions
         window.switchTab = function(tabId) {
             if (tabId === 'form' && window.userRole === 'viewer') { window.showToast("Chỉ tài khoản nội bộ mới có quyền thêm mẫu", "error"); return; }
-            ['dashboard', 'table', 'form'].forEach(id => {
+            ['dashboard', 'table', 'results', 'form'].forEach(id => {
                 const el = document.getElementById(`tab-${id}`); const btn = document.getElementById(`btn-tab-${id}`);
                 if(el) { if(id === tabId) { el.classList.remove('hidden'); if(id !== 'dashboard') el.classList.add('flex'); } else { el.classList.add('hidden'); el.classList.remove('flex'); } }
                 if(btn) btn.classList.toggle('active', id === tabId);
