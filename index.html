@@ -807,38 +807,36 @@
             <!-- ================= TAB 4: RESULTS ================= -->
             <div id="tab-results" class="min-h-full hidden flex-col w-full mx-auto gap-4 pb-4 print:hidden">
                 
-                <!-- CẤP 1: DANH SÁCH SẢN PHẨM (BẢNG) -->
+                <!-- CẤP 1: DANH SÁCH SẢN PHẨM (CARD GRID) -->
                 <div id="results-level-1" class="w-full flex flex-col gap-4 transition-all duration-300 h-full">
-                    <div class="glass-panel rounded-2xl p-4 flex justify-between items-center shrink-0 border-t-cyan-500/50 border-t-2 shadow-md">
-                        <h2 class="text-base font-black text-cyan-400 tracking-wider flex items-center gap-2 uppercase">
-                            <i class="fa-solid fa-list"></i> Danh Sách Sản Phẩm Phân Tích
+                    
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0 border-t-cyan-500/50 border-t-2 shadow-md">
+                        <h2 class="text-base font-black text-cyan-400 tracking-wider flex items-center gap-2 uppercase shrink-0">
+                            <i class="fa-solid fa-cubes"></i> Hồ Sơ Sản Phẩm Phân Tích
                         </h2>
-                        <div class="relative w-64">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="text" id="resultSearchInput" onkeyup="renderResultsLevel1()" placeholder="Lọc nhanh sản phẩm..." class="w-full glass-input rounded-full py-2 pl-9 pr-3 text-sm font-bold shadow-inner">
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <!-- Khung Tìm kiếm -->
+                            <div class="relative flex-1 sm:w-64">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="text" id="resultSearchInput" onkeyup="renderResultsLevel1()" placeholder="Tìm tên sản phẩm..." class="w-full glass-input rounded-full py-2 pl-9 pr-3 text-sm font-bold shadow-inner touch-target">
+                            </div>
+                            <!-- Khung Sắp xếp thay thế cho Click Header cũ -->
+                            <div class="relative w-full sm:w-40 shrink-0">
+                                <i class="fa-solid fa-arrow-down-a-z absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <select id="resultSortSelect" onchange="sortResultsCards(this.value)" class="w-full glass-input rounded-full py-2 pl-8 pr-6 text-sm font-bold cursor-pointer outline-none appearance-none touch-target">
+                                    <option value="name_asc" class="bg-slate-800 text-white">Tên A-Z</option>
+                                    <option value="name_desc" class="bg-slate-800 text-white">Tên Z-A</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] pointer-events-none"></i>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="glass-panel rounded-2xl flex flex-col overflow-hidden border border-white/10 shadow-lg bg-black/20 flex-1">
-                        <!-- Sử dụng table-container và left-scrollbar-container để mang thanh cuộn màu cam sang bên trái -->
-                        <div class="overflow-auto table-container left-scrollbar-container h-full">
-                            <table class="result-table w-full text-left" style="min-width: 600px;">
-                                <thead class="bg-black/60 sticky top-0 z-10">
-                                    <tr>
-                                        <th class="w-20 cursor-pointer hover:text-cyan-300 transition-colors text-center" onclick="sortResults('no')">
-                                            No. <i id="sort-icon-no" class="fa-solid fa-sort ml-1 text-gray-500"></i>
-                                        </th>
-                                        <th class="w-[40%] cursor-pointer hover:text-cyan-300 transition-colors pl-4 text-left" onclick="sortResults('name')">
-                                            Tên sản phẩm <i id="sort-icon-name" class="fa-solid fa-sort-up text-cyan-400 ml-1"></i>
-                                        </th>
-                                        <th class="pl-4 text-left">Ghi chú</th>
-                                        <th class="w-32 text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="results-list-body" class="text-gray-300 text-sm">
-                                    <!-- Rows rendered by JS -->
-                                </tbody>
-                            </table>
+                    <!-- Lưới hiển thị Card -->
+                    <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 mt-1">
+                        <div id="results-list-body" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4">
+                            <!-- Các Card Sản Phẩm sẽ được Javascript Render vào đây -->
                         </div>
                     </div>
                 </div>
@@ -870,7 +868,7 @@
                             <button onclick="exportResultsToExcel()" class="glass-btn px-4 py-1.5 rounded-md text-xs font-bold text-emerald-400 border-emerald-500/30 hover:text-emerald-300 hover:bg-emerald-900/20 transition-colors flex items-center gap-2 shadow-sm">
                                 <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Xuất Excel</span>
                             </button>
-                            <button onclick="window.showToast('Đã lưu kết quả phân tích!', 'success')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-2 transition-all">
+                            <button onclick="saveCurrentResults()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-2 transition-all">
                                 <i class="fa-solid fa-floppy-disk"></i> <span class="hidden sm:inline">Lưu Bảng</span>
                             </button>
                         </div>
@@ -879,6 +877,11 @@
                     <!-- Top Tabs (Sheet) DI CHUYỂN LÊN ĐÂY -->
                     <div class="excel-tabs-container shrink-0" id="excel-tabs-container">
                         <!-- Tabs rendered by JS -->
+                    </div>
+                    
+                    <!-- Hiển thị Ghi chú (Purpose) của Lô -->
+                    <div id="result-lot-note-container" class="px-5 py-2.5 bg-black/40 border-b border-white/10 hidden shrink-0 shadow-inner">
+                        <p class="text-xs text-amber-400 font-bold"><i class="fa-solid fa-tag mr-1.5"></i> Mục đích / Ghi chú lấy mẫu: <span id="result-lot-note" class="text-gray-300 font-normal italic ml-1"></span></p>
                     </div>
 
                     <!-- Main Content (Scrollable) -->
@@ -1879,119 +1882,88 @@
         };
 
         window.exportResultsToExcel = function() {
-            if(!currentSelectedProduct || !currentSelectedLot) {
+            if(!currentSelectedProduct) {
                 window.showToast("Không có dữ liệu để xuất", "error");
                 return;
             }
-            const condition = document.getElementById('resultConditionSelect').value;
-            const data = window.labResultsData[currentSelectedProduct]?.[currentSelectedLot]?.[condition];
             
-            if(!data || !data.rows || data.rows.length === 0) {
-                window.showToast("Bảng dữ liệu đang trống", "error");
+            const condition = document.getElementById('resultConditionSelect').value;
+            const productData = window.labResultsData[currentSelectedProduct];
+            
+            if(!productData || Object.keys(productData).length === 0) {
+                window.showToast("Sản phẩm chưa có dữ liệu Lô", "error");
                 return;
             }
 
             try {
                 const wb = XLSX.utils.book_new();
                 
-                // ================= SHEET 1: BẢNG KẾT QUẢ PHÂN TÍCH =================
-                const ws1_data = [];
-                // Phần Header Thông tin
-                ws1_data.push([`SẢN PHẨM:`, currentSelectedProduct]);
-                ws1_data.push([`SỐ LÔ (LOT NO):`, currentSelectedLot]);
-                ws1_data.push([`ĐIỀU KIỆN LƯU:`, condition]);
-                ws1_data.push([]); 
-                
-                // Tiêu đề bảng
-                const headers = ["Chỉ Tiêu (Parameters)", "Tiêu Chuẩn (Spec.)", ...STANDARD_TIMEPOINTS.map(tp => tp.replace('M', ' Tháng'))];
-                ws1_data.push(headers);
-                
-                // Đổ dữ liệu các dòng
-                data.rows.forEach(row => {
-                    if (row.name || row.spec) {
-                        const rowData = [row.name, row.spec];
-                        STANDARD_TIMEPOINTS.forEach(tp => { rowData.push(row.values[tp] || '-'); });
-                        ws1_data.push(rowData);
+                // Lặp qua tất cả các lô của sản phẩm để xuất mỗi lô thành 1 sheet
+                for (const lotNo of Object.keys(productData)) {
+                    const data = productData[lotNo][condition];
+                    
+                    const ws_data = [];
+                    ws_data.push([`SẢN PHẨM:`, currentSelectedProduct]);
+                    ws_data.push([`SỐ LÔ (LOT NO):`, lotNo]);
+                    ws_data.push([`ĐIỀU KIỆN LƯU:`, condition]);
+                    ws_data.push([]); 
+                    
+                    const headers = ["Chỉ Tiêu (Parameters)", "Tiêu Chuẩn (Spec.)", ...STANDARD_TIMEPOINTS.map(tp => tp.replace('M', ' Tháng'))];
+                    ws_data.push(headers);
+                    
+                    let hasData = false;
+                    if (data && data.rows) {
+                        data.rows.forEach(row => {
+                            if (row.name || row.spec) {
+                                const rowData = [row.name, row.spec];
+                                STANDARD_TIMEPOINTS.forEach(tp => { rowData.push(row.values[tp] || '-'); });
+                                ws_data.push(rowData);
+                                hasData = true;
+                            }
+                        });
                     }
-                });
+                    
+                    if (!hasData) {
+                        ws_data.push(["(Chưa có dữ liệu phân tích)"]);
+                    }
 
-                const ws1 = XLSX.utils.aoa_to_sheet(ws1_data);
-                
-                // Định dạng Style cho Sheet 1
-                const range = XLSX.utils.decode_range(ws1['!ref']);
-                for(let R = 0; R <= range.e.r; ++R) {
-                    for(let C = 0; C <= range.e.c; ++C) {
-                        const cellRef = XLSX.utils.encode_cell({c:C, r:R});
-                        if(!ws1[cellRef]) ws1[cellRef] = {t:'s', v:''};
-                        ws1[cellRef].s = ws1[cellRef].s || {};
-                        
-                        // Style 3 dòng đầu thông tin
-                        if (R < 3) {
-                            if (C === 0) ws1[cellRef].s.font = { bold: true };
-                            ws1[cellRef].s.alignment = { vertical: "center" };
-                        }
-                        
-                        // Style từ dòng tiêu đề bảng trở đi
-                        if (R >= 4) {
-                            ws1[cellRef].s.border = { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
-                            ws1[cellRef].s.alignment = { vertical: "center", horizontal: C >= 2 ? "center" : "left", wrapText: true };
-                            if (R === 4) {
-                                ws1[cellRef].s.fill = { patternType: "solid", fgColor: { rgb: "0284C7" } }; // Màu nền header bảng
-                                ws1[cellRef].s.font = { bold: true, color: { rgb: "FFFFFF" } };
-                                ws1[cellRef].s.alignment.horizontal = "center";
+                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    
+                    // Định dạng Style cho Sheet
+                    const range = XLSX.utils.decode_range(ws['!ref']);
+                    for(let R = 0; R <= range.e.r; ++R) {
+                        for(let C = 0; C <= range.e.c; ++C) {
+                            const cellRef = XLSX.utils.encode_cell({c:C, r:R});
+                            if(!ws[cellRef]) ws[cellRef] = {t:'s', v:''};
+                            ws[cellRef].s = ws[cellRef].s || {};
+                            
+                            if (R < 3) {
+                                if (C === 0) ws[cellRef].s.font = { bold: true };
+                                ws[cellRef].s.alignment = { vertical: "center" };
+                            }
+                            
+                            if (R >= 4 && hasData) {
+                                ws[cellRef].s.border = { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
+                                ws[cellRef].s.alignment = { vertical: "center", horizontal: C >= 2 ? "center" : "left", wrapText: true };
+                                if (R === 4) {
+                                    ws[cellRef].s.fill = { patternType: "solid", fgColor: { rgb: "0284C7" } }; // Màu nền header bảng
+                                    ws[cellRef].s.font = { bold: true, color: { rgb: "FFFFFF" } };
+                                    ws[cellRef].s.alignment.horizontal = "center";
+                                }
                             }
                         }
                     }
+                    ws['!cols'] = [{wch: 35}, {wch: 25}, ...STANDARD_TIMEPOINTS.map(() => ({wch: 12}))];
+                    
+                    // Tên sheet trong Excel tối đa 31 ký tự và không chứa ký tự đặc biệt
+                    let safeLotName = lotNo.replace(/[\\/?*\[\]:]/g, '_').substring(0, 31);
+                    XLSX.utils.book_append_sheet(wb, ws, safeLotName);
                 }
-                ws1['!cols'] = [{wch: 35}, {wch: 25}, ...STANDARD_TIMEPOINTS.map(() => ({wch: 12}))];
-                XLSX.utils.book_append_sheet(wb, ws1, "BẢNG KẾT QUẢ PHÂN TÍCH");
-
-                // ================= SHEET 2: BIỂU ĐỒ XU HƯỚNG (DATA) =================
-                const ws2_data = [];
-                const chartParamIndex = document.getElementById('chartParamSelect').value;
-                const chartRow = data.rows[chartParamIndex];
-                
-                ws2_data.push([`DỮ LIỆU VẼ BIỂU ĐỒ CHO CHỈ TIÊU:`, chartRow.name || 'N/A']);
-                ws2_data.push([`* Ghi chú: Bôi đen bảng bên dưới và chọn Insert > Line Chart để tạo biểu đồ.`]);
-                ws2_data.push([]);
-                
-                const limits = parseLimits(chartRow.spec);
-                ws2_data.push(["Thời gian", "Giới hạn Dưới (Min)", "Giới hạn Trên (Max)", "Kết quả thực tế"]);
-                
-                STANDARD_TIMEPOINTS.forEach(tp => {
-                    const val = parseFloat(chartRow.values[tp]);
-                    ws2_data.push([
-                        tp.replace('M', ' Tháng'), 
-                        limits.min !== null ? limits.min : '-', 
-                        limits.max !== null ? limits.max : '-', 
-                        !isNaN(val) ? val : '-'
-                    ]);
-                });
-
-                const ws2 = XLSX.utils.aoa_to_sheet(ws2_data);
-                
-                // Định dạng Style cho Sheet 2
-                const range2 = XLSX.utils.decode_range(ws2['!ref']);
-                for(let R = 3; R <= range2.e.r; ++R) {
-                    for(let C = 0; C <= range2.e.c; ++C) {
-                        const cellRef = XLSX.utils.encode_cell({c:C, r:R});
-                        if(!ws2[cellRef]) ws2[cellRef] = {t:'s', v:''};
-                        ws2[cellRef].s = {
-                            border: { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} },
-                            alignment: { horizontal: "center", vertical: "center" }
-                        };
-                        if (R === 3) {
-                            ws2[cellRef].s.fill = { patternType: "solid", fgColor: { rgb: "F97316" } }; // Màu cam cho header Chart
-                            ws2[cellRef].s.font = { bold: true, color: { rgb: "FFFFFF" } };
-                        }
-                    }
-                }
-                ws2['!cols'] = [{wch: 15}, {wch: 22}, {wch: 22}, {wch: 18}];
-                XLSX.utils.book_append_sheet(wb, ws2, "BIỂU ĐỒ XU HƯỚNG");
 
                 // Kích hoạt Tải xuống
-                XLSX.writeFile(wb, `Result_${currentSelectedLot}_${currentSelectedProduct.substring(0,20)}.xlsx`);
-                window.showToast("Đã xuất file Excel kết quả phân tích!");
+                const safeConditionName = condition.replace(/[/\\?%*:|"<>]/g, '-');
+                XLSX.writeFile(wb, `Result_${currentSelectedProduct.substring(0,20)}_${safeConditionName}.xlsx`);
+                window.showToast(`Đã xuất file Excel kết quả phân tích cho ${Object.keys(productData).length} lô!`);
 
             } catch (error) {
                 console.error("Lỗi xuất Excel kết quả:", error);
@@ -2171,21 +2143,12 @@
         let currentSelectedLot = null;
         window.resultsSortCol = 'name';
         window.resultsSortOrder = 'asc';
-        window.resultsNotes = JSON.parse(localStorage.getItem('dod_results_notes') || '{}');
 
-        window.sortResults = function(col) {
-            if (window.resultsSortCol === col) {
-                window.resultsSortOrder = window.resultsSortOrder === 'asc' ? 'desc' : 'asc';
-            } else {
-                window.resultsSortCol = col;
-                window.resultsSortOrder = 'asc';
-            }
+        // Hàm Sắp xếp mới cho dạng Card
+        window.sortResultsCards = function(val) {
+            window.resultsSortCol = 'name';
+            window.resultsSortOrder = val === 'name_asc' ? 'asc' : 'desc';
             renderResultsLevel1();
-        };
-
-        window.saveResultNote = function(productName, note) {
-            window.resultsNotes[productName] = note;
-            localStorage.setItem('dod_results_notes', JSON.stringify(window.resultsNotes));
         };
 
         const STANDARD_TIMEPOINTS = ['0M', '3M', '6M', '9M', '12M', '24M', '36M', '48M'];
@@ -2201,59 +2164,76 @@
                 if(name.toLowerCase().includes(searchStr)) {
                     if(!uniqueProductsMap.has(name)) {
                         uniqueProductsMap.set(name, {
-                            name: name
+                            name: name,
+                            lots: new Set() // Lưu thêm danh sách các số Lô
                         });
                     }
+                    if(s.lotNo) uniqueProductsMap.get(name).lots.add(s.lotNo);
                 }
             });
 
             let sortedProducts = Array.from(uniqueProductsMap.values());
-            // Sinh số thứ tự gốc dựa trên bảng chữ cái
+            // Sinh số thứ tự gốc
             sortedProducts.sort((a,b) => a.name.localeCompare(b.name));
             sortedProducts.forEach((p, i) => p.no = i + 1);
 
             // Sắp xếp theo lựa chọn
             sortedProducts.sort((a, b) => {
-                if (window.resultsSortCol === 'no') {
-                    return window.resultsSortOrder === 'asc' ? a.no - b.no : b.no - a.no;
-                } else {
-                    return window.resultsSortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
-                }
+                return window.resultsSortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
             });
 
             if(sortedProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-gray-500 font-bold">Không tìm thấy sản phẩm phù hợp.</td></tr>`;
+                tbody.innerHTML = `<div class="col-span-full p-10 text-center text-gray-500 font-bold glass-panel rounded-xl"><i class="fa-solid fa-box-open text-3xl mb-3"></i><br>Không tìm thấy sản phẩm phù hợp.</div>`;
                 return;
             }
 
-            // Tối ưu UI Cấp 1 bằng hiệu ứng group hover đẹp mắt
-            tbody.innerHTML = sortedProducts.map(p => `
-                <tr class="hover:bg-cyan-500/10 transition-colors border-b border-white/5 group">
-                    <td class="text-center font-bold text-gray-500 group-hover:text-cyan-400 transition-colors py-3">${p.no}</td>
-                    <td class="pl-4 text-left font-bold text-gray-200 cursor-pointer group-hover:text-cyan-300 transition-colors" onclick="openProductResults('${p.name}')">${p.name}</td>
-                    <td class="px-4 py-2">
-                        <input type="text" value="${window.resultsNotes[p.name] || ''}" onchange="saveResultNote('${p.name}', this.value)" class="w-full glass-input rounded-md px-3 py-1.5 text-xs focus:ring-1 focus:ring-cyan-500 outline-none transition-all" placeholder="Nhập ghi chú nhanh...">
-                    </td>
-                    <td class="text-center">
-                        <button onclick="openProductResults('${p.name}')" class="bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-white px-4 py-1.5 rounded-md text-[10px] font-bold transition-all shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-simple mr-1"></i> Phân Tích</button>
-                    </td>
-                </tr>
-            `).join('');
+            // Render theo dạng CSS Grid Card
+            tbody.innerHTML = sortedProducts.map(p => {
+                const lotArray = Array.from(p.lots);
+                const lotCount = lotArray.length;
+                const lotDisplay = lotCount > 0 ? lotArray.slice(0, 3).join(', ') + (lotCount > 3 ? ', ...' : '') : 'Chưa có lô';
 
-            // Cập nhật mũi tên
-            const noIcon = document.getElementById('sort-icon-no');
-            const nameIcon = document.getElementById('sort-icon-name');
-            if (noIcon) {
-                noIcon.className = window.resultsSortCol === 'no' ? (window.resultsSortOrder === 'asc' ? 'fa-solid fa-sort-up text-cyan-400 ml-1' : 'fa-solid fa-sort-down text-cyan-400 ml-1') : 'fa-solid fa-sort ml-1 text-gray-500';
-            }
-            if (nameIcon) {
-                nameIcon.className = window.resultsSortCol === 'name' ? (window.resultsSortOrder === 'asc' ? 'fa-solid fa-sort-up text-cyan-400 ml-1' : 'fa-solid fa-sort-down text-cyan-400 ml-1') : 'fa-solid fa-sort ml-1 text-gray-500';
-            }
+                return `
+                <div class="glass-panel bg-black/20 border border-white/10 rounded-2xl p-5 flex flex-col gap-4 hover:border-cyan-500/50 hover:bg-black/40 transition-all duration-300 shadow-lg group relative overflow-hidden">
+                    <!-- Hiệu ứng viền sáng mờ khi hover -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+
+                    <div class="flex items-start gap-3 z-10">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-black border border-white/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:border-cyan-500/50 transition-all shadow-inner shrink-0">
+                            <i class="fa-solid fa-pills text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-black text-gray-200 text-sm group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug cursor-pointer" onclick="openProductResults('${p.name}')" title="${p.name}">${p.name}</h3>
+                            <p class="text-[10px] text-gray-400 font-bold mt-1 truncate" title="${lotDisplay}">
+                                <i class="fa-solid fa-cubes text-gray-500 mr-1"></i> ${lotCount} Lô: <span class="text-cyan-400/80">${lotDisplay}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-4 border-t border-white/10 z-10 flex justify-between items-center">
+                        <span class="text-[10px] text-gray-500 font-bold bg-black/40 px-2 py-1 rounded-md border border-white/5">#${p.no}</span>
+                        <button onclick="openProductResults('${p.name}')" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)] flex items-center gap-2 touch-target">
+                            <i class="fa-solid fa-chart-line"></i> Mở Kết Quả
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
         };
 
         function ensureConditionData(productName, lotNo, condition) {
             if(!window.labResultsData[productName]) window.labResultsData[productName] = {};
-            if(!window.labResultsData[productName][lotNo]) window.labResultsData[productName][lotNo] = {};
+            
+            if(!window.labResultsData[productName][lotNo]) {
+                // Thử tải dữ liệu đã lưu từ Database (nếu có)
+                const record = window.samplesData.find(s => s.productName === productName && s.lotNo === lotNo);
+                if (record && record.labResults) {
+                    window.labResultsData[productName][lotNo] = JSON.parse(JSON.stringify(record.labResults));
+                } else {
+                    window.labResultsData[productName][lotNo] = {};
+                }
+            }
+            
             if(!window.labResultsData[productName][lotNo][condition]) {
                 window.labResultsData[productName][lotNo][condition] = {
                     isLocked: false,
@@ -2262,6 +2242,33 @@
             }
             return window.labResultsData[productName][lotNo][condition];
         }
+
+        window.saveCurrentResults = async function() {
+            if (window.userRole === 'viewer') {
+                window.showToast("Chỉ tài khoản nội bộ mới có quyền lưu kết quả!", "error");
+                return;
+            }
+            if(!currentSelectedProduct || !currentSelectedLot) return;
+            
+            const record = window.samplesData.find(s => s.productName === currentSelectedProduct && s.lotNo === currentSelectedLot);
+            
+            if (!record) {
+                window.showToast("Không tìm thấy Lô mẫu trên Database để lưu!", "error");
+                return;
+            }
+
+            // Gắn dữ liệu labResults vào bản ghi gốc
+            record.labResults = JSON.parse(JSON.stringify(window.labResultsData[currentSelectedProduct][currentSelectedLot]));
+            record.lastUpdatedBy = window.userDisplayName;
+            record.lastUpdatedTime = Date.now();
+
+            if (window.saveToCloud) {
+                await window.saveToCloud(record);
+                window.showToast("Đã lưu bảng kết quả phân tích lên Firebase!", "success");
+            } else {
+                window.showToast("Đã lưu bảng kết quả phân tích cục bộ!", "success");
+            }
+        };
 
         // Hàm khởi tạo dữ liệu giả lập cho UI theo cấu trúc: Product -> Lot -> Condition -> Param -> Timepoint
         function initMockData(productName, lotNo) {
@@ -2289,9 +2296,12 @@
                 currentSelectedLot = lotsArray[0];
                 lotsArray.forEach(lot => initMockData(productName, lot));
                 renderExcelTabs(lotsArray);
+                // Trigger đổi tab để hiển thị Ghi chú và Active state
+                changeResultLot(currentSelectedLot);
             } else {
                 currentSelectedLot = null;
                 document.getElementById('excel-tabs-container').innerHTML = '';
+                document.getElementById('result-lot-note-container').classList.add('hidden');
             }
 
             document.getElementById('results-level-1').classList.add('hidden');
@@ -2318,6 +2328,18 @@
                 if(el.innerText.trim() === lot) el.classList.add('active');
                 else el.classList.remove('active');
             });
+            
+            // Đồng bộ Ghi chú (Purpose) từ Database
+            const record = window.samplesData.find(s => s.productName === currentSelectedProduct && s.lotNo === lot);
+            const noteContainer = document.getElementById('result-lot-note-container');
+            const noteText = document.getElementById('result-lot-note');
+            if (record && record.purpose && record.purpose.trim() !== '') {
+                noteText.innerText = record.purpose;
+                noteContainer.classList.remove('hidden');
+            } else {
+                noteContainer.classList.add('hidden');
+            }
+
             renderResultsTable();
             renderResultsChart();
         };
