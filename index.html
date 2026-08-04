@@ -881,7 +881,7 @@
                     
                     <!-- Hiển thị Ghi chú (Purpose) của Lô -->
                     <div id="result-lot-note-container" class="px-5 py-2.5 bg-black/40 border-b border-white/10 hidden shrink-0 shadow-inner">
-                        <p class="text-xs text-amber-400 font-bold"><i class="fa-solid fa-tag mr-1.5"></i> Mục đích / Ghi chú lấy mẫu: <span id="result-lot-note" class="text-gray-300 font-normal italic ml-1"></span></p>
+                        <p class="text-xs text-amber-400 font-bold"><i class="fa-solid fa-tag mr-1.5"></i> Mục đích / Ghi chú lấy mẫu: <span id="result-lot-note" class="text-gray-300 font-normal italic ml-1">NA (Cần bổ sung)</span></p>
                     </div>
 
                     <!-- Main Content (Scrollable) -->
@@ -1888,7 +1888,8 @@
             }
             
             const condition = document.getElementById('resultConditionSelect').value;
-            const productData = window.labResultsData[currentSelectedProduct];
+            const productKey = getResultsProductKey(currentSelectedProduct);
+            const productData = window.labResultsData[productKey];
             
             if(!productData || Object.keys(productData).length === 0) {
                 window.showToast("Sản phẩm chưa có dữ liệu Lô", "error");
@@ -2153,6 +2154,24 @@
 
         const STANDARD_TIMEPOINTS = ['0M', '3M', '6M', '9M', '12M', '24M', '36M', '48M'];
 
+        function getResultsProductKey(productName) {
+            return String(productName || '').trim().toUpperCase();
+        }
+
+        function normalizeSampleText(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function findSampleRecord(productName, lotNo) {
+            const targetProduct = normalizeSampleText(productName);
+            const targetLot = normalizeSampleText(lotNo);
+            return (window.samplesData || []).find(s => {
+                const sameProduct = normalizeSampleText(s.productName) === targetProduct;
+                const sameLot = targetLot === '' || normalizeSampleText(s.lotNo) === targetLot;
+                return sameProduct && sameLot;
+            });
+        }
+
         window.renderResultsLevel1 = function() {
             const tbody = document.getElementById('results-list-body'); if(!tbody) return;
             const searchStr = (document.getElementById('resultSearchInput')?.value || '').toLowerCase();
@@ -2160,15 +2179,16 @@
             const uniqueProductsMap = new Map();
             (window.samplesData || []).forEach(s => {
                 if(!s.productName) return;
-                const name = s.productName.trim().toUpperCase();
+                const name = s.productName.trim();
+                const nameKey = name.toUpperCase();
                 if(name.toLowerCase().includes(searchStr)) {
-                    if(!uniqueProductsMap.has(name)) {
-                        uniqueProductsMap.set(name, {
+                    if(!uniqueProductsMap.has(nameKey)) {
+                        uniqueProductsMap.set(nameKey, {
                             name: name,
                             lots: new Set() // Lưu thêm danh sách các số Lô
                         });
                     }
-                    if(s.lotNo) uniqueProductsMap.get(name).lots.add(s.lotNo);
+                    if(s.lotNo) uniqueProductsMap.get(nameKey).lots.add(s.lotNo);
                 }
             });
 
@@ -2222,25 +2242,26 @@
         };
 
         function ensureConditionData(productName, lotNo, condition) {
-            if(!window.labResultsData[productName]) window.labResultsData[productName] = {};
+            const productKey = getResultsProductKey(productName);
+            if(!window.labResultsData[productKey]) window.labResultsData[productKey] = {};
             
-            if(!window.labResultsData[productName][lotNo]) {
+            if(!window.labResultsData[productKey][lotNo]) {
                 // Thử tải dữ liệu đã lưu từ Database (nếu có)
-                const record = window.samplesData.find(s => s.productName === productName && s.lotNo === lotNo);
+                const record = findSampleRecord(productName, lotNo);
                 if (record && record.labResults) {
-                    window.labResultsData[productName][lotNo] = JSON.parse(JSON.stringify(record.labResults));
+                    window.labResultsData[productKey][lotNo] = JSON.parse(JSON.stringify(record.labResults));
                 } else {
-                    window.labResultsData[productName][lotNo] = {};
+                    window.labResultsData[productKey][lotNo] = {};
                 }
             }
             
-            if(!window.labResultsData[productName][lotNo][condition]) {
-                window.labResultsData[productName][lotNo][condition] = {
+            if(!window.labResultsData[productKey][lotNo][condition]) {
+                window.labResultsData[productKey][lotNo][condition] = {
                     isLocked: false,
                     rows: Array.from({length: 10}, () => ({ name: '', spec: '', values: {} }))
                 };
             }
-            return window.labResultsData[productName][lotNo][condition];
+            return window.labResultsData[productKey][lotNo][condition];
         }
 
         window.saveCurrentResults = async function() {
@@ -2250,7 +2271,8 @@
             }
             if(!currentSelectedProduct || !currentSelectedLot) return;
             
-            const record = window.samplesData.find(s => s.productName === currentSelectedProduct && s.lotNo === currentSelectedLot);
+            const record = findSampleRecord(currentSelectedProduct, currentSelectedLot);
+            const productKey = getResultsProductKey(currentSelectedProduct);
             
             if (!record) {
                 window.showToast("Không tìm thấy Lô mẫu trên Database để lưu!", "error");
@@ -2258,7 +2280,7 @@
             }
 
             // Gắn dữ liệu labResults vào bản ghi gốc
-            record.labResults = JSON.parse(JSON.stringify(window.labResultsData[currentSelectedProduct][currentSelectedLot]));
+            record.labResults = JSON.parse(JSON.stringify(window.labResultsData[productKey][currentSelectedLot]));
             record.lastUpdatedBy = window.userDisplayName;
             record.lastUpdatedTime = Date.now();
 
@@ -2279,14 +2301,14 @@
         }
 
         window.openProductResults = function(productName) {
-            currentSelectedProduct = productName;
-            document.getElementById('result-detail-title').innerText = productName;
+            currentSelectedProduct = String(productName || '').trim();
+            document.getElementById('result-detail-title').innerText = currentSelectedProduct;
             document.getElementById('result-detail-subtitle').innerText = 'PHÂN TÍCH KẾT QUẢ';
             
             // Tìm tất cả các lô của sản phẩm này
             const lotsSet = new Set();
             (window.samplesData || []).forEach(s => {
-                if(s.productName && s.productName.trim().toUpperCase() === productName && s.lotNo) {
+                if(s.productName && normalizeSampleText(s.productName) === normalizeSampleText(currentSelectedProduct) && s.lotNo) {
                     lotsSet.add(s.lotNo);
                 }
             });
@@ -2330,14 +2352,15 @@
             });
             
             // Đồng bộ Ghi chú (Purpose) từ Database
-            const record = window.samplesData.find(s => s.productName === currentSelectedProduct && s.lotNo === lot);
+            const record = findSampleRecord(currentSelectedProduct, lot);
             const noteContainer = document.getElementById('result-lot-note-container');
             const noteText = document.getElementById('result-lot-note');
             if (record && record.purpose && record.purpose.trim() !== '') {
                 noteText.innerText = record.purpose;
                 noteContainer.classList.remove('hidden');
             } else {
-                noteContainer.classList.add('hidden');
+                noteText.innerText = 'NA (Cần bổ sung)';
+                noteContainer.classList.remove('hidden');
             }
 
             renderResultsTable();
@@ -2451,16 +2474,18 @@
         window.updateRowMeta = function(rowIndex, field, value) {
             if(!currentSelectedProduct || !currentSelectedLot) return;
             const condition = document.getElementById('resultConditionSelect').value;
-            window.labResultsData[currentSelectedProduct][currentSelectedLot][condition].rows[rowIndex][field] = value;
-            updateChartDropdown(window.labResultsData[currentSelectedProduct][currentSelectedLot][condition].rows);
+            const productKey = getResultsProductKey(currentSelectedProduct);
+            window.labResultsData[productKey][currentSelectedLot][condition].rows[rowIndex][field] = value;
+            updateChartDropdown(window.labResultsData[productKey][currentSelectedLot][condition].rows);
             if(document.getElementById('chartParamSelect').value == rowIndex) renderResultsChart();
         };
 
         window.updateResultData = function(rowIndex, timePoint, value) {
             if(!currentSelectedProduct || !currentSelectedLot) return;
             const condition = document.getElementById('resultConditionSelect').value;
+            const productKey = getResultsProductKey(currentSelectedProduct);
             
-            window.labResultsData[currentSelectedProduct][currentSelectedLot][condition].rows[rowIndex].values[timePoint] = value;
+            window.labResultsData[productKey][currentSelectedLot][condition].rows[rowIndex].values[timePoint] = value;
             
             if(document.getElementById('chartParamSelect').value == rowIndex) {
                 renderResultsChart();
@@ -2487,8 +2512,9 @@
             
             const rowIndex = document.getElementById('chartParamSelect').value;
             const condition = document.getElementById('resultConditionSelect').value;
+            const productKey = getResultsProductKey(currentSelectedProduct);
             
-            const rowData = window.labResultsData[currentSelectedProduct]?.[currentSelectedLot]?.[condition]?.rows?.[rowIndex];
+            const rowData = window.labResultsData[productKey]?.[currentSelectedLot]?.[condition]?.rows?.[rowIndex];
             if(!rowData) return;
 
             document.getElementById('legend-param-name').innerText = rowData.name || `Dòng ${parseInt(rowIndex)+1}`;
